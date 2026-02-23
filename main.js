@@ -55,7 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setupPads();
     setupTracePad();
     resetFXUI(updateRoutingFromUI);
-    colorizeTitle();
     document.body.classList.toggle("eraser-mode", toolSelect.value === "erase");
 });
 
