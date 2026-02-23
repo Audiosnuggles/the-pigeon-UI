@@ -101,45 +101,49 @@
 
   <div class="tools-fx-panel">
 
-    <div class="tools-block">
-      <span class="block-label">Tools</span>
+    <div class="tools-perf-container">
       
-      <div class="tools-row">
-        <select id="toolSelect" class="select-btn" style="width: 80px;">
-          <option value="draw">Draw</option>
-          <option value="erase">Erase</option>
-        </select>
-        <div class="track-swatches" id="trace-module">
-          <div class="track-swatch-btn swatch-sm--pink picker-btn active" data-target="0"></div>
-          <div class="track-swatch-btn swatch-sm--cyan picker-btn" data-target="1"></div>
-          <div class="track-swatch-btn swatch-sm--yellow picker-btn" data-target="2"></div>
-          <div class="track-swatch-btn swatch-sm--green picker-btn" data-target="3"></div>
+      <div class="tools-col">
+        <span class="block-label">Tools</span>
+        <div class="tools-row">
+          <select id="toolSelect" class="select-btn" style="width: 100%;">
+            <option value="draw">Draw</option>
+            <option value="erase">Erase</option>
+          </select>
+        </div>
+        <div class="tools-row">
+          <select id="brushSelect" class="select-btn" style="width: 100%;">
+            <option value="standard">Brush: Standard</option>
+            <option value="variable">Brush: Pressure</option>
+            <option value="calligraphy">Brush: Calligraphy</option>
+            <option value="particles">Brush: Particles</option>
+            <option value="fractal">Brush: Fractal</option>
+            <option value="chord">Brush: Chord</option>
+          </select>
+        </div>
+        <div class="tools-row">
+          <input id="brushSizeSlider" class="slider slider--tools" type="range" min="1" max="20" value="5" style="width: 100%;">
+        </div>
+        <div class="tools-row">
+          <select id="chordSelect" class="select-btn" style="width: 100%;">
+            <option value="major">Chord: Major</option>
+            <option value="minor">Chord: Minor</option>
+            <option value="sus4">Chord: Sus4</option>
+            <option value="dim">Chord: Diminished</option>
+          </select>
         </div>
       </div>
 
-      <div class="tools-row">
-        <select id="brushSelect" class="select-btn" style="width: 100%;">
-          <option value="standard">Brush: Standard</option>
-          <option value="variable">Brush: Pressure</option>
-          <option value="calligraphy">Brush: Calligraphy</option>
-          <option value="particles">Brush: Particles</option>
-          <option value="fractal">Brush: Fractal</option>
-          <option value="chord">Brush: Chord</option>
-        </select>
+      <div class="perf-col" id="trace-module">
+        <span class="block-label">Performance</span>
+        <div class="track-swatches">
+          <button class="track-swatch-btn swatch-sm--pink picker-btn active" data-target="0">T1</button>
+          <button class="track-swatch-btn swatch-sm--cyan picker-btn" data-target="1">T2</button>
+          <button class="track-swatch-btn swatch-sm--yellow picker-btn" data-target="2">T3</button>
+          <button class="track-swatch-btn swatch-sm--green picker-btn" data-target="3">T4</button>
+        </div>
       </div>
 
-      <div class="tools-row">
-        <input id="brushSizeSlider" class="slider slider--tools" type="range" min="1" max="20" value="5" style="width: 100%;">
-      </div>
-
-      <div class="tools-row">
-        <select id="chordSelect" class="select-btn" style="width: 100%;">
-          <option value="major">Chord: Major</option>
-          <option value="minor">Chord: Minor</option>
-          <option value="sus4">Chord: Sus4</option>
-          <option value="dim">Chord: Diminished</option>
-        </select>
-      </div>
     </div>
 
     <div class="poke-grid-outer" id="trace-pad">
