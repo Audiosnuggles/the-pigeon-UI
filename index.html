@@ -332,12 +332,52 @@
 
 </div>
 
-<div id="help-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:200000; justify-content:center; align-items:center;">
-    <div style="background:#fff; padding:20px; max-width:500px; border-radius:8px; position:relative;">
-        <button id="closeHelpBtn" style="position:absolute; top:10px; right:10px;">X</button>
-        <h2>The Pigeon Help</h2>
-        <p>Willkommen beim Pigeon Sequencer!</p>
+<div id="help-overlay">
+  <div class="help-content">
+    <button id="closeHelpBtn">X</button>
+    <h2>The Pigeon - User Manual</h2>
+    <div class="help-grid-expanded">
+      
+      <div class="help-section">
+        <h3>1. Tracks & Drawing</h3>
+        <p><strong>Oscillators (∿ ⎍ ◺):</strong> Choose the waveform for the track. <strong>∿ (Sine)</strong> for smooth bass/leads, <strong>⎍ (Square)</strong> for hollow 8-bit sounds, or <strong>◺ (Sawtooth)</strong> for sharp, buzzing synths.</p>
+        <p><strong>Track Controls:</strong> The <strong>Color Strip</strong> indicates the track (T1-T4). Use <strong>Mute</strong> to silence a track, and the <strong>Volume Slider</strong> below it to adjust its level.</p>
+        <p><strong>Snap:</strong> Check 'Snap' to quantize your drawing. The track is divided into steps, snapping your notes precisely to a rhythmic grid.</p>
+        <p><strong>Drawing:</strong> Left-click and drag on the canvas. High up = high pitch, lower down = low pitch.</p>
+      </div>
+
+      <div class="help-section">
+        <h3>2. Performance & FX Rack</h3>
+        <p><strong>Performance (T1-T4):</strong> Select the track you want to control live. Use <strong>Clear Track</strong> to quickly erase all drawings on it.</p>
+        <p><strong>Poke Me Pad:</strong> A live trigger! Click and hold inside the square. X-axis = timeline position, Y-axis = pitch/frequency.</p>
+        <p><strong>FX Matrix:</strong> 6 effect modules. Click the 4 colored squares (representing T1-T4) to route a track into an effect. The green LED shows if the effect is active.</p>
+        <p><strong>X/Y Link:</strong> Turn this ON to hijack the 'Poke Me' pad. Drawing stops, and the Pad now controls the two effect knobs live (X-Axis = Left Knob, Y-Axis = Right Knob).</p>
+      </div>
+
+      <div class="help-section">
+        <h3>3. Global Controls & Tools</h3>
+        <p><strong>Sync & Tempo:</strong> Use <strong>EXT SYNC</strong> to lock The Pigeon to an external MIDI Clock (e.g., Ableton). Select your device from the dropdown.</p>
+        <p><strong>Loop & Harmonize:</strong> Check <strong>Loop</strong> for infinite playback. <strong>Harmonize</strong> forces your drawn frequencies into a perfect musical <strong>Scale</strong> (Major, Minor, Pentatonic).</p>
+        <p><strong>Tool & Brush:</strong> Switch between <strong>Draw</strong> and <strong>Eraser</strong>. The <strong>Brush</strong> dropdown offers wild textures (Standard, Particles, Fractal, or Chords). Adjust the stroke with the <strong>Size</strong> slider.</p>
+      </div>
+
+      <div class="help-section">
+        <h3>🔌 Studio Sync (Ableton Live)</h3>
+        <p><strong>1. Virtual Cable:</strong> Aktiviere den <em>IAC-Treiber</em> (Mac) im Audio-MIDI-Setup oder installiere <em>loopMIDI</em> (Windows).</p>
+        <p><strong>2. DAW Setup:</strong> Aktiviere in den Ableton MIDI-Einstellungen den <strong>Sync</strong>-Output für dieses virtuelle Kabel.</p>
+        <p><strong>3. The Pigeon:</strong> Klicke auf <strong>EXT SYNC</strong>. Sobald du in Ableton auf Play drückst, läuft The Pigeon phasengenau als Slave mit!</p>
+      </div>
+
+      <div class="help-section">
+        <h3>4. Actions & Pattern Bank</h3>
+        <p><strong>Playback Buttons:</strong> <strong>Play/Stop</strong> starts the loop (Shortcut: <em>Spacebar</em>). <strong>Clear</strong> wipes all tracks. <strong>Undo</strong> reverts your last drawing (Shortcut: <em>Ctrl/Cmd + Z</em>).</p>
+        <p><strong>Data & Export:</strong> Use <strong>Export/Import Set</strong> to save your entire session as a file. <strong>Export WAV</strong> renders a perfect offline-loop to your hard drive.</p>
+        <p><strong>⏺ Rec:</strong> Click to start live recording. Perform on the Trace Pad! Click 'Stop Rec' to download the live jam as a WAV file.</p>
+        <p><strong>Pattern Bank:</strong> Save different loops into Banks A, B, C. Click <strong>⏺ SAVE</strong> (it pulses), then click a Pad to store. Click any Pad during playback to queue and switch patterns seamlessly.</p>
+      </div>
+
     </div>
+  </div>
 </div>
 
 <script src="canvas.js" type="module"></script>
