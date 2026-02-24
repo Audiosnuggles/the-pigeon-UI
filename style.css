@@ -325,8 +325,8 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
 .control-bar__left { display: flex; flex-direction: column; gap: 14px; flex: 1; }
 .control-bar__label { font-size: 14.5px; font-weight: bold; color: var(--color-dark-gray); margin-right: 10px; }
 
-.ctrl-top-row { display: flex; align-items: center; justify-content: flex-start; gap: 10px; }
-.ctrl-meta-right { display: flex; align-items: center; gap: 16px; }
+.ctrl-top-row { display: flex; align-items: center; justify-content: flex-start; gap: 10px; height: 24px; }
+.ctrl-meta-right { display: flex; align-items: center; gap: 16px; height: 24px; }
 
 .ctrl-action-blocks { display: flex; align-items: flex-start; gap: 32px; margin-top: -2px; } 
 .ctrl-block { display: flex; flex-direction: column; gap: 6px; width: auto; } 
