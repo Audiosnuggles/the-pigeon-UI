@@ -2,6 +2,16 @@
    THE PIGEON – Audio Sequencer UI  (v6 Fixes)
    ============================================================ */
 
+/* ============================================================
+   SCHRIFTARTEN LADE-BEREICH
+   ============================================================ */
+@font-face {
+  font-family: 'Bagel Fat One';
+  src: url('BagelFatOne-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   --color-pink:        #ff6385;
   --color-cyan:        #67d7ff;
@@ -28,6 +38,24 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ═══════════════════════════════════════
+   GLOBALE UI-REGELN (Text markieren verbieten)
+═══════════════════════════════════════ */
+body {
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* IE/Edge */
+  user-select: none;         /* Standard */
+}
+
+/* Eingabefelder müssen weiterhin markierbar und klickbar bleiben! */
+input, textarea, select {
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+}
 
 body {
   font-family: 'Arial', sans-serif;
@@ -56,7 +84,14 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
   display: flex; align-items: flex-start; justify-content: space-between; padding: 14px 16px 8px 16px;
 }
 .header__left { display: flex; flex-direction: column; gap: 0; }
-.header__title { font-size: 26px; line-height: 1; font-weight: bold; color: var(--color-dark-gray); margin: 0; }
+.header__title { 
+  font-family: 'Bagel Fat One', sans-serif; /* Neuer Font zugewiesen */
+  font-size: 26px; 
+  line-height: 1.1; /* Minimal mehr Abstand zwischen den Zeilen für den dicken Font */
+  font-weight: normal; /* Auf normal gesetzt, da der Bagel-Font von sich aus schon fett ist */
+  color: var(--color-dark-gray); 
+  margin: 0; 
+}
 .title-line { display: block; }
 
 #pigeon { 
@@ -296,3 +331,26 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
 .help-section h3 { font-size: 14px; color: #444; border-bottom: 2px solid #ccc; padding-bottom: 5px; margin-top: 0; text-transform: uppercase; }
 .help-section p { font-size: 11.5px; color: #555; line-height: 1.5; margin-bottom: 8px; margin-top: 0; }
 .help-section p strong { color: #111; }
+
+/* =========================================
+   DOM ERASER (Original Pigeon 3)
+   ========================================= */
+#custom-eraser {
+  position: fixed; 
+  pointer-events: none; 
+  z-index: 9999999; 
+  width: 32px; 
+  height: 32px;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path d="M13.5 3L21 10.5L14.5 17L7 9.5L13.5 3Z" fill="%23f2f2f2" stroke="black" stroke-width="1.5"/><path d="M7 9.5L14.5 17L9 22L1.5 14.5L7 9.5Z" fill="%23ff7eb3" stroke="black" stroke-width="1.5"/></svg>');
+  background-size: contain; 
+  background-repeat: no-repeat; 
+  display: none; 
+  transform: translate(-5px, -27px); /* Zieht die Spitze exakt auf den Mauszeiger */
+}
+
+body.eraser-mode #custom-eraser { display: block; }
+
+/* Optional: Den normalen Mauszeiger ausblenden, wenn der Radiergummi da ist */
+body.eraser-mode, body.eraser-mode canvas {
+  cursor: none !important;
+}
