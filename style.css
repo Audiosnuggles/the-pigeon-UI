@@ -60,7 +60,7 @@ input, textarea, select {
 body {
   font-family: 'Arial', sans-serif;
   font-size: 11.5px;
-  background: #333333; /* HINTERGRUND IST JETZT DEUTLICH DUNKLER! */
+  background: #333333; 
   color: var(--color-dark-gray);
   -webkit-font-smoothing: antialiased;
 }
@@ -81,23 +81,46 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
    HEADER & TAUBE
 ═══════════════════════════════════════ */
 .header {
-  display: flex; align-items: flex-start; justify-content: space-between; padding: 14px 16px 8px 16px;
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  padding: 14px 16px 8px 16px;
 }
-.header__left { display: flex; flex-direction: column; gap: 0; }
+
+.header__left { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 0; 
+}
+
 .header__title { 
-  font-family: 'Bagel Fat One', sans-serif; /* Neuer Font zugewiesen */
+  font-family: 'Bagel Fat One', sans-serif; 
   font-size: 26px; 
-  line-height: 1.1; /* Minimal mehr Abstand zwischen den Zeilen für den dicken Font */
-  font-weight: normal; /* Auf normal gesetzt, da der Bagel-Font von sich aus schon fett ist */
-  color: var(--color-dark-gray); 
+  line-height: 1.1; 
+  font-weight: normal; 
+  color: #4B4B4B; 
   margin: 0; 
 }
+
 .title-line { display: block; }
 
+.header__right {
+  display: flex;
+  align-items: center;
+  gap: 15px; 
+}
+
+.header__logo-icon {
+  width: 65px; 
+  height: auto;
+}
+
 #pigeon { 
-  position: absolute; top: 11px; right: 20px; width: 60px; 
-  z-index: 100; opacity: 0.8; pointer-events: none; 
-  transform-origin: bottom center; transition: transform 0.05s ease-out; 
+  width: 60px; 
+  opacity: 0.8; 
+  pointer-events: none; 
+  transform-origin: bottom center; 
+  transition: transform 0.05s ease-out; 
 }
 
 /* ═══════════════════════════════════════
@@ -146,7 +169,7 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
 .snap-checkbox:checked + .snap-box { background: var(--color-pink); border-color: var(--color-pink); }
 
 /* ═══════════════════════════════════════
-   TOOLS + PERFORMANCE PANEL (Mit extra Divider)
+   TOOLS + PERFORMANCE PANEL
 ═══════════════════════════════════════ */
 .tools-fx-panel {
   display: flex; align-items: stretch; border-top: 1px solid #d1d1d1; border-bottom: 1px solid #d1d1d1;
@@ -166,7 +189,7 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
   width: 1px;
   background: #d1d1d1;
   margin: 0;
-  align-self: stretch; /* Zieht den Strich immer über die volle Höhe */
+  align-self: stretch;
 }
 
 .block-label { font-size: 12px; font-weight: bold; color: var(--color-dark-gray); margin-bottom: 8px; line-height: 1; }
@@ -194,23 +217,14 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
 .track-swatch-btn.swatch-sm--yellow.active { background: var(--color-yellow); color: #fff; border-color: var(--color-yellow); box-shadow: inset -2px 2px 4px rgba(0,0,0,.25); }
 .track-swatch-btn.swatch-sm--green.active  { background: var(--color-green); color: #fff; border-color: var(--color-green); box-shadow: inset -2px 2px 4px rgba(0,0,0,.25); }
 
-/* ═══════════════════════════════════════
-   TOOLS + PERFORMANCE PANEL (Pad & FX angepasst)
-═══════════════════════════════════════ */
-/* ... die oberen Teile bleiben gleich ... */
-
-/* Poke Grid (Fixe Größe 158px, Links ausgerichtet) */
+/* Poke Grid */
 .poke-grid-outer {
   position: relative; display: flex; align-items: center; justify-content: center; 
   background: #fff; border: 1px solid #d1d1d1; border-radius: var(--radius-md); 
   padding: 10px; flex-shrink: 0;
-  
-  /* HIER GEÄNDERT: Feste, berechnete Größe für perfektes Quadrat */
   width: 158px;
   height: 158px;
-  align-self: center; /* Zentriert es vertikal, falls es minimale Abweichungen gibt */
-  /* margin-left: auto;  <-- DAS WURDE ENTFERNT, damit es nach links rutscht */
-  
+  align-self: center; 
   cursor: crosshair;
   background-image: linear-gradient(#eaeaea 1px, transparent 1px), linear-gradient(90deg, #eaeaea 1px, transparent 1px), linear-gradient(#bbb 1px, transparent 1px), linear-gradient(90deg, #bbb 1px, transparent 1px);
   background-size: 15px 15px, 15px 15px, 75px 75px, 75px 75px; 
@@ -219,14 +233,12 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
 .poke-label { position: absolute; font-size: 24px; font-weight: 900; color: #d1d1d1; letter-spacing: 2px; text-align: center; line-height: 1.15; pointer-events: none; user-select: none; }
 
 /* ═══════════════════════════════════════
-   FX AREA (Wieder breiter)
+   FX AREA 
 ═══════════════════════════════════════ */
 .fx-area { 
   flex: 1; 
-  /* max-width: 460px; <-- DAS WURDE ENTFERNT, damit es breiter wird */
   display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 6px; min-width: 0; 
 }
-/* ... der Rest der FX Area bleibt gleich ... */
 
 .fx-mod { background: #fff; border: 1px solid #d1d1d1; border-radius: var(--radius-md); padding: 6px 8px 6px; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
 .fx-mod--disabled { opacity: 0.4; transition: all 0.3s ease;}
@@ -262,28 +274,23 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
 .control-bar__left { display: flex; flex-direction: column; gap: 14px; flex: 1; }
 .control-bar__label { font-size: 14.5px; font-weight: bold; color: var(--color-dark-gray); margin-right: 10px; }
 
-/* Top Row: Label und Meta-Controls nebeneinander */
 .ctrl-top-row { display: flex; align-items: center; justify-content: flex-start; gap: 10px; }
 .ctrl-meta-right { display: flex; align-items: center; gap: 16px; }
 
-.ctrl-action-blocks { display: flex; align-items: flex-start; gap: 32px; margin-top: -2px; } /* Zieht die Zeile etwas höher */
-.ctrl-block { display: flex; flex-direction: column; gap: 6px; width: auto; } /* Minimal kompakterer Zeilenabstand */
-.ctrl-btn-row { display: flex; align-items: center; gap: 8px; height: 34px; } /* Erzwingt exakt gleiche Höhe! */
+.ctrl-action-blocks { display: flex; align-items: flex-start; gap: 32px; margin-top: -2px; } 
+.ctrl-block { display: flex; flex-direction: column; gap: 6px; width: auto; } 
+.ctrl-btn-row { display: flex; align-items: center; gap: 8px; height: 34px; } 
 
-/* Basis-Styling für die Buttons */
 .btn--ctrl { background: var(--color-bg-button); border: 1px solid var(--color-border-btn); border-radius: var(--radius-sm); height: 34px; padding: 0 16px; font-size: 11.5px; font-family: 'Arial', sans-serif; color: #292929; white-space: nowrap; transition: background .12s; }
 .btn--ctrl:hover { background: #e8e8e8; }
 
-/* Exakt gleiche Breite für PLAY und REC */
 .btn--play, .btn--rec { width: 78px; padding: 0; display: flex; align-items: center; justify-content: center; }
 .btn--rec { gap: 6px; }
 .rec-dot { width: 8px; height: 9px; border-radius: 50%; background: #ff0000; flex-shrink: 0; }
 
-/* Sync Button & Dropdown in der 3. Spalte */
 .btn--ext-sync { background: var(--color-dark-gray); color: #ececec; border: 1px solid var(--color-border-btn); border-radius: 12px; padding: 0 14px; font-size: 11.5px; font-family: 'Arial', sans-serif; height: 34px; display: flex; align-items: center; justify-content: center; white-space: nowrap; width: 100%; transition: all .12s; }
 .btn--ext-sync.active { background-color: #ff9900; color: #fff; box-shadow: 0 0 8px #ff9900; border-color: #cc7a00; }
 
-/* Tempo & Toggle Checkboxen */
 .tempo-wrap { display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: #292929; }
 .tempo-box { background: var(--color-bg-button); border: 1px solid var(--color-border-btn); border-radius: var(--radius-sm); padding: 0 4px; font-size: 11.5px; font-family: 'Arial', sans-serif; width: 50px; height: 22px; color: #292929; outline: none; text-align: center; }
 
@@ -291,7 +298,6 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
 .toggle-sq { width: 16px; height: 16px; background: transparent; border: 1px solid var(--color-border-btn); border-radius: var(--radius-sm); flex-shrink: 0; transition: background 0.15s; }
 #loopCheckbox:checked + .toggle-ui, #harmonizeCheckbox:checked + .toggle-ui { background: var(--color-pink); }
 
-/* Help Button */
 .btn--help { width: 34px; height: 34px; background: var(--color-help); color: #1f1f1f; border: none; border-radius: 17px; font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin-left: 8px; transition: background 0.1s; }
 .btn--help:hover { background: #d0f050; }
 
@@ -310,7 +316,6 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
 .pat-btn { width: 33px; height: 33px; border: 1px solid var(--color-border); border-radius: var(--radius-md); transition: filter .1s; }
 .pat-btn:hover { filter: brightness(1.08); }
 
-/* Pattern Pads JS Connections */
 .pad { background: #929191; }
 .pad.filled { background: #b8b8b8; }
 .pad.active { background: var(--color-pink); box-shadow: 0 0 0 2px #fff inset; }
@@ -345,12 +350,11 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
   background-size: contain; 
   background-repeat: no-repeat; 
   display: none; 
-  transform: translate(-5px, -27px); /* Zieht die Spitze exakt auf den Mauszeiger */
+  transform: translate(-5px, -27px); 
 }
 
 body.eraser-mode #custom-eraser { display: block; }
 
-/* Optional: Den normalen Mauszeiger ausblenden, wenn der Radiergummi da ist */
 body.eraser-mode, body.eraser-mode canvas {
   cursor: none !important;
 }
