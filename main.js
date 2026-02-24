@@ -704,7 +704,7 @@ function setupMainControls() {
         fxOff.vibLfo.connect(fxOff.vibDepth); fxOff.vibDepth.connect(fxOff.vibrato.delayTime);
         fxOff.vibLfo.start(0); fxOff.vibrato.connect(mDest);
 
-        // Algorithmic Reverb für Offline Render aufbauen
+        // Dichter Faltungshall für Offline Render aufbauen
         fxOff.reverbInput = offCtx.createGain();
         fxOff.reverbMix = offCtx.createGain();
         fxOff.reverbMix.gain.value = getKnobVal("REVERB", "MIX") * 1.5;
@@ -714,15 +714,20 @@ function setupMainControls() {
         fxOff.reverbFilter.frequency.value = 2500;
         
         const revDecay = getKnobVal("REVERB", "DECAY") * 1.0 || 0.5;
-        const offFbValue = 0.3 + (revDecay * 0.58);
-        const dTimes = [0.0297, 0.0371, 0.0411, 0.0437];
-        const revSum = offCtx.createGain();
-        
-        dTimes.forEach(time => {
-            const d = offCtx.createDelay(1.0); d.delayTime.value = time;
-            const fb = offCtx.createGain(); fb.gain.value = offFbValue;
-            fxOff.reverbInput.connect(d); d.connect(fb); fb.connect(d); d.connect(revSum);
-        });
+        const duration = 0.1 + (revDecay * 4.0);
+        const len = Math.floor(sampleRate * duration);
+        const impulse = offCtx.createBuffer(2, len, sampleRate);
+        for (let i = 0; i < 2; i++) {
+            const chan = impulse.getChannelData(i);
+            for (let j = 0; j < len; j++) chan[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / len, 3);
+        }
+        fxOff.reverbConvolver = offCtx.createConvolver();
+        fxOff.reverbConvolver.buffer = impulse;
+
+        fxOff.reverbInput.connect(fxOff.reverbConvolver);
+        fxOff.reverbConvolver.connect(fxOff.reverbFilter);
+        fxOff.reverbFilter.connect(fxOff.reverbMix);
+        fxOff.reverbMix.connect(mDest);
         
         const ap1 = offCtx.createBiquadFilter(); ap1.type = "allpass"; ap1.frequency.value = 300;
         const ap2 = offCtx.createBiquadFilter(); ap2.type = "allpass"; ap2.frequency.value = 1000;

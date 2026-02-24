@@ -32,49 +32,26 @@ export function initAudio(tracks, updateRoutingCallback) {
     fxNodes.delay.feedback.connect(fxNodes.delay.node);
     fxNodes.delay.node.connect(masterGain);
 
-    // 2. REVERB (Algorithmic "Schroeder" Reverb - Warm & Echtzeit-fähig)
-    fxNodes.reverb.input = audioCtx.createGain();
+    // 2. REVERB (Zurück zum dichten Faltungshall, aber warm gefiltert!)
+    fxNodes.reverb.convolver = audioCtx.createConvolver();
     fxNodes.reverb.mix = audioCtx.createGain();
-    fxNodes.reverb.mix.gain.value = 0.2;
-
-    // Der Filter macht den Raum "warm"
+    fxNodes.reverb.input = audioCtx.createGain();
+    
+    // Der Dampening-Filter bleibt, damit es warm klingt!
     fxNodes.reverb.filter = audioCtx.createBiquadFilter();
     fxNodes.reverb.filter.type = 'lowpass';
     fxNodes.reverb.filter.frequency.value = 2500; 
-
-    // 4 parallele Delay-Lines erzeugen die Dichte des Raums
-    const delayTimes = [0.0297, 0.0371, 0.0411, 0.0437];
-    fxNodes.reverb.feedbacks = [];
-    const reverbSum = audioCtx.createGain();
-
-    delayTimes.forEach(time => {
-        const delay = audioCtx.createDelay(1.0);
-        delay.delayTime.value = time;
-        const feedback = audioCtx.createGain();
-        feedback.gain.value = 0.5;
-
-        fxNodes.reverb.input.connect(delay);
-        delay.connect(feedback);
-        feedback.connect(delay);
-        delay.connect(reverbSum);
-
-        fxNodes.reverb.feedbacks.push(feedback);
-    });
-
-    // Allpass-Filter verschmieren die Echos zu einem sauberen Hall
-    const allpass1 = audioCtx.createBiquadFilter();
-    allpass1.type = "allpass"; allpass1.frequency.value = 300;
     
-    const allpass2 = audioCtx.createBiquadFilter();
-    allpass2.type = "allpass"; allpass2.frequency.value = 1000;
-
-    reverbSum.connect(allpass1);
-    allpass1.connect(allpass2);
-    allpass2.connect(fxNodes.reverb.filter);
+    fxNodes.reverb.mix.gain.value = 0.2;
+    
+    // Routing: Input -> Convolver -> Filter -> Mix -> Master
+    fxNodes.reverb.input.connect(fxNodes.reverb.convolver);
+    fxNodes.reverb.convolver.connect(fxNodes.reverb.filter);
     fxNodes.reverb.filter.connect(fxNodes.reverb.mix);
     fxNodes.reverb.mix.connect(masterGain);
-
-    updateReverbDecay(0.5); 
+    
+    // Reverb Buffer direkt am Anfang einmal befüllen
+    updateReverbDecay(0.5);
 
     // 3. VIBRATO
     fxNodes.vibrato.node = audioCtx.createDelay(1.0);
@@ -93,7 +70,7 @@ export function initAudio(tracks, updateRoutingCallback) {
     fxNodes.vibrato.input.connect(fxNodes.vibrato.node);
     fxNodes.vibrato.node.connect(masterGain);
 
-    // 4. FILTER
+    // 4. FILTER (Warmer Moog-Style: 24dB Ladder + Soft Saturation)
     fxNodes.filter.input = audioCtx.createGain();
     fxNodes.filter.node1 = audioCtx.createBiquadFilter(); 
     fxNodes.filter.node2 = audioCtx.createBiquadFilter(); 
@@ -114,7 +91,7 @@ export function initAudio(tracks, updateRoutingCallback) {
     fxNodes.filter.node1.connect(fxNodes.filter.node2);
     fxNodes.filter.node2.connect(masterGain);
 
-    // 5. STUTTER GATE
+    // 5. STUTTER GATE (Knacks-frei durch abgerundete Kanten)
     fxNodes.stutter.input = audioCtx.createGain();
     fxNodes.stutter.gate = audioCtx.createGain();
     fxNodes.stutter.lfo = audioCtx.createOscillator();
@@ -122,9 +99,10 @@ export function initAudio(tracks, updateRoutingCallback) {
     fxNodes.stutter.lfo.type = 'square';
     fxNodes.stutter.lfo.frequency.value = 8;
 
+    // NEU: Der "Slew Limiter" - Ein Filter, der den LFO abrundet
     fxNodes.stutter.smoother = audioCtx.createBiquadFilter();
     fxNodes.stutter.smoother.type = 'lowpass';
-    fxNodes.stutter.smoother.frequency.value = 40; 
+    fxNodes.stutter.smoother.frequency.value = 40; // Sehr tiefe Frequenz rundet die Rechteck-Kanten ab
     
     const stutterAmp = audioCtx.createGain();
     stutterAmp.gain.value = 0.5;
@@ -133,6 +111,8 @@ export function initAudio(tracks, updateRoutingCallback) {
     stutterOffset.start();
 
     fxNodes.stutter.gate.gain.value = 0;
+    
+    // Neues LFO-Routing: LFO -> Smoother -> Amp -> Gain Parameter
     fxNodes.stutter.lfo.connect(fxNodes.stutter.smoother);
     fxNodes.stutter.smoother.connect(stutterAmp);
     
@@ -144,6 +124,7 @@ export function initAudio(tracks, updateRoutingCallback) {
     fxNodes.stutter.gate.connect(masterGain); 
 
     tracks.forEach((t, i) => {
+        // Analyser für diesen Track erstellen (für die LEDs)
         trackAnalysers[i] = audioCtx.createAnalyser();
         trackAnalysers[i].fftSize = 256;
 
@@ -163,6 +144,7 @@ export function initAudio(tracks, updateRoutingCallback) {
         trackSends[i].filter.gain.value = 0;
         trackSends[i].stutter.gain.value = 0;
 
+        // Routing: Das Dry-Signal geht erst in den Analyser und von dort in den Master
         trackSends[i].dry.connect(trackAnalysers[i]);
         trackAnalysers[i].connect(masterGain);
 
@@ -176,14 +158,25 @@ export function initAudio(tracks, updateRoutingCallback) {
     if (updateRoutingCallback) updateRoutingCallback();
 }
 
-// Steuert jetzt live das Feedback-Netzwerk statt Puffer neu zu berechnen!
+let reverbTimer = null;
 export function updateReverbDecay(decayVal) {
-    if (!audioCtx || !fxNodes.reverb.feedbacks) return;
-    // Mappt den Regler (0-1) auf sichere Feedback-Werte, damit es sich nicht aufschaukelt
-    const fbValue = 0.3 + (decayVal * 0.58); 
-    fxNodes.reverb.feedbacks.forEach(fb => {
-        fb.gain.setTargetAtTime(fbValue, audioCtx.currentTime, 0.05);
-    });
+    if (!audioCtx || !fxNodes.reverb.convolver) return;
+    
+    // Timer zurücksetzen, solange der Regler noch gedreht wird
+    if (reverbTimer) clearTimeout(reverbTimer);
+    
+    // Wartet kurz nach dem Drehen, berechnet dann den dicken Raum neu
+    reverbTimer = setTimeout(() => {
+        const duration = 0.1 + (decayVal * 4.0); 
+        const sr = audioCtx.sampleRate;
+        const len = Math.floor(sr * duration);
+        const impulse = audioCtx.createBuffer(2, len, sr);
+        for (let i = 0; i < 2; i++) {
+            const chan = impulse.getChannelData(i);
+            for (let j = 0; j < len; j++) chan[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / len, 3);
+        }
+        fxNodes.reverb.convolver.buffer = impulse;
+    }, 150);
 }
 
 export function connectTrackToFX(trackGain, index) {
@@ -225,10 +218,12 @@ export function getWarmDistortionCurve(amount = 0) {
     return curve;
 }
 
+// Lineare Berechnung wie in The Pigeon 3
 export function mapYToFrequency(y, height) {
     return Math.max(20, Math.min(1000 - (y / height) * 920, 20000));
 }
 
+// Quantisierungs-Logik und Moll-Pentatonik wie in The Pigeon 3
 export function quantizeFrequency(freq, scale) {
     const scales = {
         major: [0, 2, 4, 5, 7, 9, 11],
@@ -238,13 +233,17 @@ export function quantizeFrequency(freq, scale) {
     };
     const activeScale = scales[scale] || scales.major;
     
+    // A440 Logik
     let m = Math.round(69 + 12 * Math.log2(freq / 440));
     let mod = m % 12;
     let b = activeScale[0];
     let md = 99;
     
     activeScale.forEach(p => {
-        if (Math.abs(p - mod) < md) { md = Math.abs(p - mod); b = p; }
+        if (Math.abs(p - mod) < md) {
+            md = Math.abs(p - mod);
+            b = p;
+        }
     });
     
     return 440 * Math.pow(2, (m - mod + b - 69) / 12);
