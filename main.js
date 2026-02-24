@@ -41,7 +41,6 @@ const toolSelect = document.getElementById("toolSelect"),
       tracePad = document.getElementById("trace-pad"),
       customEraser = document.getElementById("custom-eraser");
 
-// HIER IST SOLO JETZT RICHTIG INITIALISIERT
 const tracks = Array.from(document.querySelectorAll(".track-container")).map((c, i) => ({
     index: i, canvas: c.querySelector("canvas"), ctx: c.querySelector("canvas").getContext("2d"),
     segments: [], wave: "sine", mute: false, solo: false, vol: 0.8, snap: false, gainNode: null, curSeg: null
@@ -180,13 +179,11 @@ const updateEraserPos = (e) => {
 window.addEventListener("mousemove", updateEraserPos);
 window.addEventListener("touchmove", updateEraserPos, { passive: true });
 
-// --- NEUE ZENTRALE AUDIO LOGIK FÜR MUTE UND SOLO ---
 function applyAllVolumes() {
     if (!audioCtx) return;
     const anySolo = tracks.some(tr => tr.solo);
     tracks.forEach(tr => {
         if (tr.gainNode) {
-            // Die Profi-Logik: Solo übertrumpft Mute!
             const isAudible = anySolo ? tr.solo : !tr.mute;
             tr.gainNode.gain.setTargetAtTime(isAudible ? tr.vol : 0, audioCtx.currentTime, 0.05);
         }
@@ -413,7 +410,6 @@ function triggerParticleGrain(track, y) {
 function scheduleTracks(start, targetCtx = audioCtx, targetDest = masterGain, offlineFX = null) {
     const anySolo = tracks.some(tr => tr.solo);
     tracks.forEach(track => {
-        // HIER WAR DER FEHLER: trkG muss definiert werden!
         const trkG = targetCtx.createGain(); 
         trkG.gain.value = (track.mute || (anySolo && !track.solo)) ? 0 : track.vol;
         
@@ -435,7 +431,8 @@ function scheduleTracks(start, targetCtx = audioCtx, targetDest = masterGain, of
 
             if (getMatrixStateByName("DELAY", track.index)) trkG.connect(offlineFX.delay);
             if (getMatrixStateByName("VIBRATO", track.index)) trkG.connect(offlineFX.vibrato);
-            if (getMatrixStateByName("REVERB", track.index) && offlineFX.reverb) trkG.connect(offlineFX.reverb); 
+            // Nutze den neuen Reverb Input für Offline Render
+            if (getMatrixStateByName("REVERB", track.index) && offlineFX.reverbInput) trkG.connect(offlineFX.reverbInput); 
             if (hasFilter && offlineFX.filterInput) trkG.connect(offlineFX.filterInput);
             
             if (hasStutter && offlineFX.stutter) {
@@ -692,7 +689,6 @@ function setupMainControls() {
         const fxOff = {
             delay: offCtx.createDelay(), delayFbk: offCtx.createGain(),
             vibrato: offCtx.createDelay(), vibLfo: offCtx.createOscillator(), vibDepth: offCtx.createGain(),
-            reverb: offCtx.createConvolver(), reverbMix: offCtx.createGain(),
             filter: offCtx.createBiquadFilter(), filterDrive: offCtx.createWaveShaper(),
             stutter: offCtx.createGain(), stutterLfo: offCtx.createOscillator()
         };
@@ -708,18 +704,34 @@ function setupMainControls() {
         fxOff.vibLfo.connect(fxOff.vibDepth); fxOff.vibDepth.connect(fxOff.vibrato.delayTime);
         fxOff.vibLfo.start(0); fxOff.vibrato.connect(mDest);
 
-        const revDecay = getKnobVal("REVERB", "DECAY") * 1.0 || 0.5;
-        const revDur = 0.1 + (revDecay * 4.0);
-        const revLen = Math.floor(sampleRate * revDur);
-        const revImp = offCtx.createBuffer(2, revLen, sampleRate);
-        for (let i = 0; i < 2; i++) {
-            const chan = revImp.getChannelData(i);
-            for (let j = 0; j < revLen; j++) chan[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / revLen, 3);
-        }
-        fxOff.reverb.buffer = revImp;
+        // Algorithmic Reverb für Offline Render aufbauen
+        fxOff.reverbInput = offCtx.createGain();
+        fxOff.reverbMix = offCtx.createGain();
         fxOff.reverbMix.gain.value = getKnobVal("REVERB", "MIX") * 1.5;
-        fxOff.reverb.connect(fxOff.reverbMix); fxOff.reverbMix.connect(mDest);
 
+        fxOff.reverbFilter = offCtx.createBiquadFilter();
+        fxOff.reverbFilter.type = 'lowpass';
+        fxOff.reverbFilter.frequency.value = 2500;
+        
+        const revDecay = getKnobVal("REVERB", "DECAY") * 1.0 || 0.5;
+        const offFbValue = 0.3 + (revDecay * 0.58);
+        const dTimes = [0.0297, 0.0371, 0.0411, 0.0437];
+        const revSum = offCtx.createGain();
+        
+        dTimes.forEach(time => {
+            const d = offCtx.createDelay(1.0); d.delayTime.value = time;
+            const fb = offCtx.createGain(); fb.gain.value = offFbValue;
+            fxOff.reverbInput.connect(d); d.connect(fb); fb.connect(d); d.connect(revSum);
+        });
+        
+        const ap1 = offCtx.createBiquadFilter(); ap1.type = "allpass"; ap1.frequency.value = 300;
+        const ap2 = offCtx.createBiquadFilter(); ap2.type = "allpass"; ap2.frequency.value = 1000;
+        
+        revSum.connect(ap1); ap1.connect(ap2); ap2.connect(fxOff.reverbFilter);
+        fxOff.reverbFilter.connect(fxOff.reverbMix); 
+        fxOff.reverbMix.connect(mDest);
+
+        // Filter Setup
         fxOff.filter.type = 'lowpass';
         const fVal = getKnobVal("FILTER", "FREQ");
         const rVal = getKnobVal("FILTER", "RES");
@@ -730,6 +742,7 @@ function setupMainControls() {
         fxOff.filter.connect(mDest);
         fxOff.filterInput = fxOff.filterDrive; 
 
+        // Stutter Setup
         fxOff.stutter.gain.value = 0;
         fxOff.stutterLfo.type = 'square';
         fxOff.stutterLfo.frequency.value = (getKnobVal("STUTTER", "RATE") * 15) + 1;
@@ -1154,10 +1167,7 @@ function loop() {
             }
             if(fx === "reverb" && fxNodes.reverb.mix) {
                 fxNodes.reverb.mix.gain.setTargetAtTime(normY * 1.5, audioCtx.currentTime, 0.05); 
-                if (!fxNodes.reverb.lastX || Math.abs(fxNodes.reverb.lastX - normX) > 0.05) {
-                    updateReverbDecay(normX);
-                    fxNodes.reverb.lastX = normX;
-                }
+                updateReverbDecay(normX);
             }
             if(fx === "filter" && fxNodes.filter && fxNodes.filter.node1) {
                 const cutoff = Math.pow(normX, 3) * 22000;
@@ -1200,7 +1210,6 @@ function loop() {
     pigeonImg.style.transform = `scale(${1 + Math.min(0.2, d / 100)}, ${1 - Math.min(0.5, d / 50)})`; 
 }
 
-// --- HIER STECKT DIE NEUE SOLO BUTTON VERBINDUNG ---
 function setupTrackControls(t) {
     const cont = t.canvas.closest('.track-container'); 
     if(!cont) return;
@@ -1262,7 +1271,6 @@ function updateClippingLEDs() {
         
         analyser.getFloatTimeDomainData(peakDataArray);
         
-        // Den höchsten Pegel-Ausschlag (Peak) in diesem Frame finden
         let maxPeak = 0;
         for (let j = 0; j < peakDataArray.length; j++) {
             const absValue = Math.abs(peakDataArray[j]);
@@ -1271,26 +1279,21 @@ function updateClippingLEDs() {
             }
         }
 
-        // Klassen entsprechend dem Pegel vergeben
         if (maxPeak >= 0.95) {
-            // ROT: Übersteuerung
             led.classList.add('peak');
             led.classList.remove('warning');
         } else if (maxPeak >= 0.75) {
-            // ORANGE: Heißes Signal (Warnung)
             led.classList.add('warning');
             led.classList.remove('peak');
         } else {
-            // GRÜN: Normales Signal
             led.classList.remove('peak');
             led.classList.remove('warning');
         }
         
-        led.style.background = ''; // Inline-Styles aufräumen
+        led.style.background = ''; 
     }
 
     requestAnimationFrame(updateClippingLEDs);
 }
 
-// Schleife starten
 updateClippingLEDs();

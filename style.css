@@ -358,16 +358,30 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
 .fx-track-dot--yellow { background: var(--color-yellow); }
 .fx-track-dot--green  { background: var(--color-green); }
 
-.btn--xy { 
-  background: var(--color-bg-button); 
-  border: 1px solid var(--color-border-tool); 
-  border-radius: var(--radius-sm); 
-  padding: 3px 6px; 
-  font-size: 9px; 
-  color: var(--color-dark-gray); 
-  flex-shrink: 0; 
-  white-space: nowrap; 
-  margin-left: 10px; /* NEU: Schiebt den Button weiter nach rechts weg vom Grid */
+/* X/Y Link Buttons (Quadratisch & Leuchtend) */
+.btn--xy {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px; /* Sehr leicht abgerundetes Quadrat */
+  background: var(--color-dark-gray);
+  border: 1px solid var(--color-border);
+  color: var(--color-medium-gray);
+  font-size: 9px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 8px auto; /* Zentriert über den Knobs */
+}
+
+/* Der leuchtende Aktiv-Zustand */
+.btn--xy.active {
+  background: var(--color-blue);
+  color: #fff;
+  border-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 150, 255, 0.6); /* Blaues Neon-Leuchten */
 }
 
 .fx-knobs { display: flex; gap: 6px; align-items: flex-end; margin-left: auto; }
