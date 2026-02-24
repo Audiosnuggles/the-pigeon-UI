@@ -44,7 +44,7 @@ const toolSelect = document.getElementById("toolSelect"),
 
 const tracks = Array.from(document.querySelectorAll(".track-container")).map((c, i) => ({
     index: i, canvas: c.querySelector("canvas"), ctx: c.querySelector("canvas").getContext("2d"),
-    segments: [], wave: "sine", mute: false, vol: 0.8, snap: false, gainNode: null, curSeg: null
+    segments: [], wave: "sine", mute: false, solo: false, vol: 0.8, snap: false, gainNode: null, curSeg: null
 }));
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -391,8 +391,8 @@ function triggerParticleGrain(track, y) {
 
 function scheduleTracks(start, targetCtx = audioCtx, targetDest = masterGain, offlineFX = null) {
     tracks.forEach(track => {
-        const trkG = targetCtx.createGain(); 
-        trkG.gain.value = track.mute ? 0 : track.vol;
+        const anySolo = tracks.some(tr => tr.solo);
+	trkG.gain.value = (track.mute || (anySolo && !track.solo)) ? 0 : track.vol;
         
         if (targetCtx === audioCtx) { 
             track.gainNode = trkG; 
@@ -1204,16 +1204,40 @@ function setupTrackControls(t) {
     if(muteBtn) {
         muteBtn.addEventListener("click", e => { 
             t.mute = !t.mute; 
-            e.target.style.backgroundColor = t.mute ? "#ff4444" : ""; 
-            updateTrackVolume(t); 
+            muteBtn.classList.toggle("active", t.mute); 
+            applyAllVolumes(); 
+        });
+    }
+
+    const soloBtn = cont.querySelector(".btn--solo");
+    if(soloBtn) {
+        soloBtn.addEventListener("click", e => {
+            t.solo = !t.solo;
+            soloBtn.classList.toggle("active", t.solo);
+            applyAllVolumes();
         });
     }
 
     const volSlider = cont.querySelector(".volume-slider");
-    if(volSlider) volSlider.addEventListener("input", e => { t.vol = parseFloat(e.target.value); updateTrackVolume(t); });
+    if(volSlider) volSlider.addEventListener("input", e => { 
+        t.vol = parseFloat(e.target.value); 
+        applyAllVolumes(); 
+    });
     
     const snapBox = cont.querySelector(".snap-checkbox");
     if(snapBox) snapBox.addEventListener("change", e => t.snap = e.target.checked);
+}
+
+function applyAllVolumes() {
+    if (!audioCtx) return;
+    const anySolo = tracks.some(tr => tr.solo);
+    tracks.forEach(tr => {
+        if (tr.gainNode) {
+            // Mute greift, WENN der Track stumm ist ODER (ein anderer Solo ist UND dieser nicht)
+            const isMuted = tr.mute || (anySolo && !tr.solo);
+            tr.gainNode.gain.setTargetAtTime(isMuted ? 0 : tr.vol, audioCtx.currentTime, 0.05);
+        }
+    });
 }
 
 function colorizeTitle() {
