@@ -227,7 +227,7 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
 
 .select-btn {
   display: flex; align-items: center; justify-content: space-between; height: 24px; background: var(--color-bg-button);
-  border: 1px solid var(--color-border-tool); border-radius: var(--radius-sm); padding: 0 6px; font-size: 11.5px; color: var(--color-dark-gray);
+  border: 1px solid var(--color-border-tool); border-radius: var(--radius-sm); padding: 0 6px; font-size: 11.5px; color: #292929;
 }
 .slider--tools { width: 100%; height: 7px; }
 
@@ -253,7 +253,7 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
   cursor: crosshair;
   
   /* NEU: Der Inner Shadow für den eingelassenen 3D-Effekt */
-  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.3);
   
   background-image: linear-gradient(#eaeaea 1px, transparent 1px), linear-gradient(90deg, #eaeaea 1px, transparent 1px), linear-gradient(#bbb 1px, transparent 1px), linear-gradient(90deg, #bbb 1px, transparent 1px);
   background-size: 15px 15px, 15px 15px, 75px 75px, 75px 75px; 
@@ -280,15 +280,37 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
 .fx-mod__body { display: flex; align-items: center; gap: 6px; flex: 1; }
 .fx-track-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 3px; flex-shrink: 0; width: 28px; height: 28px; }
 
-.fx-track-dot { border-radius: 50%; border: none; cursor: pointer; padding: 0; opacity: 0.2; transition: opacity .12s; background: #999; }
-.fx-track-dot.active { opacity: 1; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1); }
-.fx-track-dot--pink.active   { background: var(--color-pink); }
-.fx-track-dot--cyan.active   { background: var(--color-cyan); }
-.fx-track-dot--yellow.active { background: var(--color-yellow); }
-.fx-track-dot--green.active  { background: var(--color-green); }
+.fx-track-dot { 
+  border-radius: var(--radius-md); /* NEU: Quadratisch mit leicht abgerundeten Ecken */
+  border: none; /* Kein Rand mehr */
+  cursor: pointer; 
+  padding: 0; 
+  opacity: 0.25; /* NEU: Leicht transparent im inaktiven Zustand */
+  transition: all .12s; 
+}
 
-.btn--xy { background: var(--color-bg-button); border: 1px solid var(--color-border-tool); border-radius: var(--radius-sm); padding: 3px 6px; font-size: 9px; color: var(--color-dark-gray); flex-shrink: 0; white-space: nowrap; }
-.fx-xy-link.active { background: var(--color-dark-gray); color: #fff; }
+.fx-track-dot.active { 
+  opacity: 1; /* NEU: Volle Leuchtkraft, wenn aktiv */
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); /* Ein feiner Schatten nach innen für den perfekten Look */
+}
+
+/* NEU: Farben sind jetzt immer zugewiesen, nicht nur bei .active */
+.fx-track-dot--pink   { background: var(--color-pink); }
+.fx-track-dot--cyan   { background: var(--color-cyan); }
+.fx-track-dot--yellow { background: var(--color-yellow); }
+.fx-track-dot--green  { background: var(--color-green); }
+
+.btn--xy { 
+  background: var(--color-bg-button); 
+  border: 1px solid var(--color-border-tool); 
+  border-radius: var(--radius-sm); 
+  padding: 3px 6px; 
+  font-size: 9px; 
+  color: var(--color-dark-gray); 
+  flex-shrink: 0; 
+  white-space: nowrap; 
+  margin-left: 10px; /* NEU: Schiebt den Button weiter nach rechts weg vom Grid */
+}
 
 .fx-knobs { display: flex; gap: 6px; align-items: flex-end; margin-left: auto; }
 .knob-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; }
