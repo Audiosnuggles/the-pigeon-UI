@@ -48,3 +48,25 @@ export function resetFXUI(updateRouting) {
     });
     if (updateRouting) updateRouting();
 }
+
+// Sprach-Umschalter für das Hilfe-Menü
+const langToggleBtn = document.getElementById('langToggleBtn');
+const helpDe = document.getElementById('help-de');
+const helpEn = document.getElementById('help-en');
+let currentLang = 'de';
+
+if (langToggleBtn) {
+  langToggleBtn.addEventListener('click', () => {
+    if (currentLang === 'de') {
+      helpDe.style.display = 'none';
+      helpEn.style.display = 'block';
+      langToggleBtn.innerText = '🇩🇪 Deutsch';
+      currentLang = 'en';
+    } else {
+      helpDe.style.display = 'block';
+      helpEn.style.display = 'none';
+      langToggleBtn.innerText = '🇬🇧 English';
+      currentLang = 'de';
+    }
+  });
+}
