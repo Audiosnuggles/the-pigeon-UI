@@ -1,7 +1,7 @@
 import { drawGrid, redrawTrack } from './canvas.js';
 import { 
     initAudio, audioCtx, masterGain, analyser, fxNodes, trackSends, 
-    updateTrackVolume, connectTrackToFX, getDistortionCurve, mapYToFrequency, quantizeFrequency,
+    connectTrackToFX, getDistortionCurve, mapYToFrequency, quantizeFrequency,
     updateReverbDecay
 } from './audio.js';
 import { setupKnob, updatePadUI, resetFXUI } from './ui.js';
@@ -12,7 +12,6 @@ let isPlaying = false, isSaveMode = false, playbackStartTime = 0, playbackDurati
 let undoStack = [], liveNodes = [], liveGainNode = null, activeNodes = [], lastAvg = 0;
 let currentTargetTrack = 0, traceCurrentY = 50, isTracing = false, isEffectMode = false, traceCurrentSeg = null, queuedPattern = null;
 
-// Globale Listen für Fractal Echtzeit-Update & Particle-Drosselung
 let activeWaveShapers = []; 
 let lastParticleTime = 0; 
 
@@ -42,6 +41,7 @@ const toolSelect = document.getElementById("toolSelect"),
       tracePad = document.getElementById("trace-pad"),
       customEraser = document.getElementById("custom-eraser");
 
+// HIER IST SOLO JETZT RICHTIG INITIALISIERT
 const tracks = Array.from(document.querySelectorAll(".track-container")).map((c, i) => ({
     index: i, canvas: c.querySelector("canvas"), ctx: c.querySelector("canvas").getContext("2d"),
     segments: [], wave: "sine", mute: false, solo: false, vol: 0.8, snap: false, gainNode: null, curSeg: null
@@ -150,28 +150,24 @@ toolSelect.addEventListener("change", (e) => {
     document.body.classList.toggle("eraser-mode", e.target.value === "erase");
 });
 
-// --- NEU: Fractal Brush UI Hervorhebung ---
 function updateFractalFxUI() {
     const isFractal = brushSelect.value === "fractal";
     document.querySelectorAll('.fx-unit').forEach(unit => {
         const header = unit.querySelector('.fx-header');
         if (header && header.textContent.toUpperCase().includes("FRACTAL")) {
             unit.style.transition = "all 0.3s ease";
-            unit.style.opacity = isFractal ? "1" : "0.3"; // Dimmen, wenn inaktiv
-            unit.style.boxShadow = isFractal ? "0 0 15px rgba(255, 68, 68, 0.15)" : "none"; // Sanftes rotes Glühen
+            unit.style.opacity = isFractal ? "1" : "0.3"; 
+            unit.style.boxShadow = isFractal ? "0 0 15px rgba(255, 68, 68, 0.15)" : "none"; 
             unit.style.borderColor = isFractal ? "#ff4444" : "#333"; 
             header.style.color = isFractal ? "#ff4444" : "#666";
             
-            // Optional: Die Knöpfe in der Box auch halb-durchsichtig machen, wenn inaktiv
             const knobs = unit.querySelectorAll('.knob-container');
             knobs.forEach(k => k.style.opacity = isFractal ? "1" : "0.5");
         }
     });
 }
 brushSelect.addEventListener("change", updateFractalFxUI);
-updateFractalFxUI(); // Einmal direkt beim Start ausführen
-// ------------------------------------------
-
+updateFractalFxUI(); 
 
 const updateEraserPos = (e) => {
     if (toolSelect.value === "erase" && customEraser) {
@@ -183,6 +179,18 @@ const updateEraserPos = (e) => {
 };
 window.addEventListener("mousemove", updateEraserPos);
 window.addEventListener("touchmove", updateEraserPos, { passive: true });
+
+// --- NEUE ZENTRALE AUDIO LOGIK FÜR MUTE UND SOLO ---
+function applyAllVolumes() {
+    if (!audioCtx) return;
+    const anySolo = tracks.some(tr => tr.solo);
+    tracks.forEach(tr => {
+        if (tr.gainNode) {
+            const isMuted = tr.mute || (anySolo && !tr.solo);
+            tr.gainNode.gain.setTargetAtTime(isMuted ? 0 : tr.vol, audioCtx.currentTime, 0.05);
+        }
+    });
+}
 
 function applyAllFXFromUI() {
     if (!audioCtx) return;
@@ -301,7 +309,13 @@ function loadPatternData(d) {
             const cont = t.canvas.closest('.track-container');
             if (cont) {
                 cont.querySelector(".volume-slider").value = t.vol;
-                cont.querySelector(".mute-btn").style.backgroundColor = t.mute ? "#ff4444" : "";
+                
+                const muteBtn = cont.querySelector(".mute-btn");
+                if (muteBtn) muteBtn.classList.toggle("active", t.mute);
+                
+                const soloBtn = cont.querySelector(".btn--solo");
+                if (soloBtn) soloBtn.classList.toggle("active", t.solo);
+                
                 const snapBox = cont.querySelector(".snap-checkbox"); if(snapBox) snapBox.checked = t.snap;
                 cont.querySelectorAll(".wave-btn").forEach(btn => {
                     if (btn.dataset.wave === t.wave) btn.classList.add("active");
@@ -310,11 +324,14 @@ function loadPatternData(d) {
             }
             redrawTrack(t, undefined, brushSelect.value, chordIntervals, chordColors);
         });
+        applyAllVolumes();
     }
 }
 
 function startLiveSynth(track, y) {
-    if (track.mute || track.vol < 0.01) return;
+    const anySolo = tracks.some(tr => tr.solo);
+    if (track.mute || (anySolo && !track.solo) || track.vol < 0.01) return;
+    
     liveNodes = []; liveGainNode = audioCtx.createGain(); liveGainNode.gain.setValueAtTime(0, audioCtx.currentTime);
     liveGainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.01);
     
@@ -332,7 +349,7 @@ function startLiveSynth(track, y) {
         if(brush === "fractal") { 
             const sh = audioCtx.createWaveShaper(); 
             sh.curve = getDistortionCurve(80 + (fractalMorph * 400)); 
-            activeWaveShapers.push(sh); // Speichern für Live-Updates
+            activeWaveShapers.push(sh); 
             osc.connect(sh).connect(liveGainNode); 
         } else {
             osc.connect(liveGainNode);
@@ -368,7 +385,8 @@ function stopLiveSynth() {
 }
 
 function triggerParticleGrain(track, y) { 
-    if(track.mute || track.vol < 0.01) return; 
+    const anySolo = tracks.some(tr => tr.solo);
+    if(track.mute || (anySolo && !track.solo) || track.vol < 0.01) return; 
     
     let freq = mapYToFrequency(y, 100); 
     if(harmonizeCheckbox.checked) freq = quantizeFrequency(freq, scaleSelect.value); 
@@ -390,9 +408,11 @@ function triggerParticleGrain(track, y) {
 }
 
 function scheduleTracks(start, targetCtx = audioCtx, targetDest = masterGain, offlineFX = null) {
+    const anySolo = tracks.some(tr => tr.solo);
     tracks.forEach(track => {
-        const anySolo = tracks.some(tr => tr.solo);
-	trkG.gain.value = (track.mute || (anySolo && !track.solo)) ? 0 : track.vol;
+        // HIER WAR DER FEHLER: trkG muss definiert werden!
+        const trkG = targetCtx.createGain(); 
+        trkG.gain.value = (track.mute || (anySolo && !track.solo)) ? 0 : track.vol;
         
         if (targetCtx === audioCtx) { 
             track.gainNode = trkG; 
@@ -451,7 +471,7 @@ function scheduleTracks(start, targetCtx = audioCtx, targetDest = masterGain, of
                     if (brush === "fractal") { 
                         const sh = targetCtx.createWaveShaper(); 
                         sh.curve = getDistortionCurve(80 + (fractalMorph * 400)); 
-                        if (targetCtx === audioCtx) activeWaveShapers.push(sh); // Speichern für Live-Updates
+                        if (targetCtx === audioCtx) activeWaveShapers.push(sh); 
                         osc.connect(sh).connect(g); 
                     } else {
                         osc.connect(g);
@@ -468,6 +488,7 @@ function scheduleTracks(start, targetCtx = audioCtx, targetDest = masterGain, of
         });
     });
 }
+
 function setupDrawing(track) {
     let drawing = false;
     
@@ -482,7 +503,6 @@ function setupDrawing(track) {
         if (toolSelect.value === "draw") {
             drawing = true; 
             
-            // Reines Zufallsrauschen speichern (Canvas regelt später das Chaos)
             const rX = Math.random() - 0.5;
             const rY = Math.random() - 0.5;
 
@@ -510,7 +530,6 @@ function setupDrawing(track) {
             const lastPt = track.curSeg.points[track.curSeg.points.length - 1];
             const dist = Math.hypot(x - lastPt.x, pos.y - lastPt.y);
             
-            // Räumliche Drosselung: Spart Leistung und macht Particle Brush live identisch zum Loop
             if (dist > 3) { 
                 const rX = Math.random() - 0.5;
                 const rY = Math.random() - 0.5;
@@ -520,7 +539,6 @@ function setupDrawing(track) {
                 
                 if (brushSelect.value === "particles") {
                     const now = performance.now();
-                    // Zeitliche Drosselung auf ca. 60 FPS
                     if (now - lastParticleTime > 16) {
                         triggerParticleGrain(track, pos.y);
                         lastParticleTime = now;
@@ -574,7 +592,6 @@ function setupMainControls() {
         helpOverlay.addEventListener("click", (e) => { if(e.target === helpOverlay) helpOverlay.style.display = "none"; });
     }
 
-    // --- MIDI ENGINE INITIALISIEREN ---
     initMidiEngine("extSyncBtn", "midiInputSelect", {
         onToggle: (active) => {
             const bpmInput = document.getElementById("bpmInput");
@@ -590,7 +607,6 @@ function setupMainControls() {
                 }
             }
         },
-        // ZERO-LATENCY START FÜR MIDI
         onStart: () => {
             if (!isPlaying) {
                 initAudio(tracks, updateRoutingFromUI); 
@@ -600,7 +616,7 @@ function setupMainControls() {
                 playbackStartTime = audioCtx.currentTime; 
                 isPlaying = true; 
                 
-                activeWaveShapers = []; // Liste beim Play-Start leeren!
+                activeWaveShapers = []; 
                 scheduleTracks(playbackStartTime); 
                 
                 timerWorker.postMessage('start');
@@ -747,7 +763,7 @@ function setupMainControls() {
         playbackStartTime = audioCtx.currentTime + 0.05; 
         isPlaying = true; 
         
-        activeWaveShapers = []; // Liste beim Play-Start leeren!
+        activeWaveShapers = []; 
         scheduleTracks(playbackStartTime); 
         
         timerWorker.postMessage('start');
@@ -758,16 +774,12 @@ function setupMainControls() {
         timerWorker.postMessage('stop');
         activeNodes.forEach(n => { try { n.stop(); n.disconnect(); } catch (e) { } });
         activeNodes = []; 
-        activeWaveShapers = []; // Liste beim Stop leeren!
+        activeWaveShapers = []; 
         tracks.forEach(t => { if(t.gainNode) t.gainNode.disconnect(); redrawTrack(t, undefined, brushSelect.value, chordIntervals, chordColors); });
         pigeonImg.style.transform = "scale(1)"; 
         
-        // FIX: Wir löschen beim Stop NUR noch das "queued" (falls ein Pad geblinkt hat),
-        // lassen das "active" Pattern aber markiert!
         document.querySelectorAll(".pad.queued").forEach(p => p.classList.remove("queued")); 
     });
-    
-    document.getElementById("fullscreenBtn")?.addEventListener("click", () => { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); });
     
     document.getElementById("undoButton").addEventListener("click", () => { 
         if (undoStack.length > 0) { 
@@ -863,7 +875,6 @@ function setupPads() {
                 document.getElementById("saveModeBtn").classList.remove("active"); 
                 updatePadUI(patternBanks);
                 
-                // NEU: Wenn du ein Pattern speicherst, wird es auch direkt zum aktiven markiert!
                 document.querySelectorAll(".pad.active").forEach(p => p.classList.remove("active"));
                 pad.classList.add("active");
                 
@@ -875,7 +886,6 @@ function setupPads() {
                 }
                 else { 
                     loadPatternData(patternBanks[b][i]); 
-                    // FIX: Nur die "pad" Elemente deselektieren, nicht alle "active" Buttons!
                     document.querySelectorAll(".pad.active").forEach(p => p.classList.remove("active")); 
                     pad.classList.add("active"); 
                 }
@@ -1088,7 +1098,6 @@ function loop() {
     
     if (elapsed >= playbackDuration) {
         
-        // FIX: Wir merken uns die ALTE Länge, bevor das neue Pattern lädt!
         let oldDuration = playbackDuration; 
 
         if (queuedPattern) { 
@@ -1100,8 +1109,6 @@ function loop() {
         
         if (document.getElementById("loopCheckbox").checked) { 
             
-            // FIX: Wir verschieben die Zeitachse exakt um die alte Länge, 
-            // damit das neue Pattern nahtlos und ohne Lücke anschließt!
             playbackStartTime += oldDuration; 
             
             activeWaveShapers = []; 
@@ -1190,6 +1197,7 @@ function loop() {
     pigeonImg.style.transform = `scale(${1 + Math.min(0.2, d / 100)}, ${1 - Math.min(0.5, d / 50)})`; 
 }
 
+// --- HIER STECKT DIE NEUE SOLO BUTTON VERBINDUNG ---
 function setupTrackControls(t) {
     const cont = t.canvas.closest('.track-container'); 
     if(!cont) return;
@@ -1226,22 +1234,4 @@ function setupTrackControls(t) {
     
     const snapBox = cont.querySelector(".snap-checkbox");
     if(snapBox) snapBox.addEventListener("change", e => t.snap = e.target.checked);
-}
-
-function applyAllVolumes() {
-    if (!audioCtx) return;
-    const anySolo = tracks.some(tr => tr.solo);
-    tracks.forEach(tr => {
-        if (tr.gainNode) {
-            // Mute greift, WENN der Track stumm ist ODER (ein anderer Solo ist UND dieser nicht)
-            const isMuted = tr.mute || (anySolo && !tr.solo);
-            tr.gainNode.gain.setTargetAtTime(isMuted ? 0 : tr.vol, audioCtx.currentTime, 0.05);
-        }
-    });
-}
-
-function colorizeTitle() {
-    const h1 = document.querySelector('h1');
-    if (!h1) return;
-    h1.innerHTML = h1.textContent.split('').map(char => char.trim() ? `<span>${char}</span>` : char).join('');
 }
