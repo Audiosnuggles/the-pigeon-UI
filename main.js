@@ -431,7 +431,7 @@ function scheduleTracks(start, targetCtx = audioCtx, targetDest = masterGain, of
 
             if (getMatrixStateByName("DELAY", track.index)) trkG.connect(offlineFX.delay);
             if (getMatrixStateByName("VIBRATO", track.index)) trkG.connect(offlineFX.vibrato);
-            // Nutze den neuen Reverb Input für Offline Render
+            // Nutze den Reverb Input für Offline Render
             if (getMatrixStateByName("REVERB", track.index) && offlineFX.reverbInput) trkG.connect(offlineFX.reverbInput); 
             if (hasFilter && offlineFX.filterInput) trkG.connect(offlineFX.filterInput);
             
@@ -675,104 +675,109 @@ function setupMainControls() {
 
     const exportWavBtn = document.getElementById("exportWavButton");
     exportWavBtn.addEventListener("click", async () => {
-        exportWavBtn.innerText = "⏳ Exporting...";
-        exportWavBtn.disabled = true;
+        try {
+            exportWavBtn.innerText = "⏳ Exporting...";
+            exportWavBtn.disabled = true;
 
-        const bpm = parseFloat(document.getElementById("bpmInput").value) || 120;
-        const loopDur = (60 / bpm) * 32;
-        const sampleRate = audioCtx ? audioCtx.sampleRate : 44100;
-        
-        const offCtx = new OfflineAudioContext(2, sampleRate * loopDur, sampleRate);
-        const mDest = offCtx.createGain(); 
-        mDest.connect(offCtx.destination);
-        
-        const fxOff = {
-            delay: offCtx.createDelay(), delayFbk: offCtx.createGain(),
-            vibrato: offCtx.createDelay(), vibLfo: offCtx.createOscillator(), vibDepth: offCtx.createGain(),
-            filter: offCtx.createBiquadFilter(), filterDrive: offCtx.createWaveShaper(),
-            stutter: offCtx.createGain(), stutterLfo: offCtx.createOscillator()
-        };
-        
-        fxOff.delay.delayTime.value = getKnobVal("DELAY", "TIME") * 1.0;
-        fxOff.delayFbk.gain.value = getKnobVal("DELAY", "FDBK") * 0.9;
-        fxOff.delay.connect(fxOff.delayFbk); fxOff.delayFbk.connect(fxOff.delay);
-        fxOff.delay.connect(mDest);
-        
-        fxOff.vibrato.delayTime.value = 0.03;
-        fxOff.vibLfo.frequency.value = getKnobVal("VIBRATO", "RATE") * 20;
-        fxOff.vibDepth.gain.value = getKnobVal("VIBRATO", "DEPTH") * 0.01;
-        fxOff.vibLfo.connect(fxOff.vibDepth); fxOff.vibDepth.connect(fxOff.vibrato.delayTime);
-        fxOff.vibLfo.start(0); fxOff.vibrato.connect(mDest);
+            const bpm = parseFloat(document.getElementById("bpmInput").value) || 120;
+            const loopDur = (60 / bpm) * 32;
+            const sampleRate = audioCtx ? audioCtx.sampleRate : 44100;
+            
+            // FIX: OfflineAudioContext verlangt glatte Zahlen! Math.floor schützt vor Abstürzen
+            const lengthInSamples = Math.floor(sampleRate * loopDur);
+            const offCtx = new OfflineAudioContext(2, lengthInSamples, sampleRate);
+            
+            const mDest = offCtx.createGain(); 
+            mDest.connect(offCtx.destination);
+            
+            const fxOff = {
+                delay: offCtx.createDelay(), delayFbk: offCtx.createGain(),
+                vibrato: offCtx.createDelay(), vibLfo: offCtx.createOscillator(), vibDepth: offCtx.createGain(),
+                filter: offCtx.createBiquadFilter(), filterDrive: offCtx.createWaveShaper(),
+                stutter: offCtx.createGain(), stutterLfo: offCtx.createOscillator()
+            };
+            
+            // DELAY
+            fxOff.delay.delayTime.value = getKnobVal("DELAY", "TIME") * 1.0;
+            fxOff.delayFbk.gain.value = getKnobVal("DELAY", "FDBK") * 0.9;
+            fxOff.delay.connect(fxOff.delayFbk); fxOff.delayFbk.connect(fxOff.delay);
+            fxOff.delay.connect(mDest);
+            
+            // VIBRATO
+            fxOff.vibrato.delayTime.value = 0.03;
+            fxOff.vibLfo.frequency.value = getKnobVal("VIBRATO", "RATE") * 20;
+            fxOff.vibDepth.gain.value = getKnobVal("VIBRATO", "DEPTH") * 0.01;
+            fxOff.vibLfo.connect(fxOff.vibDepth); fxOff.vibDepth.connect(fxOff.vibrato.delayTime);
+            fxOff.vibLfo.start(0); fxOff.vibrato.connect(mDest);
 
-        // Dichter Faltungshall für Offline Render aufbauen
-        fxOff.reverbInput = offCtx.createGain();
-        fxOff.reverbMix = offCtx.createGain();
-        fxOff.reverbMix.gain.value = getKnobVal("REVERB", "MIX") * 1.5;
+            // REVERB (Dichter Faltungshall)
+            fxOff.reverbInput = offCtx.createGain();
+            fxOff.reverbMix = offCtx.createGain();
+            fxOff.reverbMix.gain.value = getKnobVal("REVERB", "MIX") * 1.5;
 
-        fxOff.reverbFilter = offCtx.createBiquadFilter();
-        fxOff.reverbFilter.type = 'lowpass';
-        fxOff.reverbFilter.frequency.value = 2500;
-        
-        const revDecay = getKnobVal("REVERB", "DECAY") * 1.0 || 0.5;
-        const duration = 0.1 + (revDecay * 4.0);
-        const len = Math.floor(sampleRate * duration);
-        const impulse = offCtx.createBuffer(2, len, sampleRate);
-        for (let i = 0; i < 2; i++) {
-            const chan = impulse.getChannelData(i);
-            for (let j = 0; j < len; j++) chan[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / len, 3);
+            fxOff.reverbFilter = offCtx.createBiquadFilter();
+            fxOff.reverbFilter.type = 'lowpass';
+            fxOff.reverbFilter.frequency.value = 2500;
+            
+            const revDecay = getKnobVal("REVERB", "DECAY") * 1.0 || 0.5;
+            const duration = 0.1 + (revDecay * 4.0);
+            const len = Math.floor(sampleRate * duration);
+            const impulse = offCtx.createBuffer(2, len, sampleRate);
+            for (let i = 0; i < 2; i++) {
+                const chan = impulse.getChannelData(i);
+                for (let j = 0; j < len; j++) chan[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / len, 3);
+            }
+            fxOff.reverbConvolver = offCtx.createConvolver();
+            fxOff.reverbConvolver.buffer = impulse;
+
+            fxOff.reverbInput.connect(fxOff.reverbConvolver);
+            fxOff.reverbConvolver.connect(fxOff.reverbFilter);
+            fxOff.reverbFilter.connect(fxOff.reverbMix);
+            fxOff.reverbMix.connect(mDest);
+
+            // FILTER
+            fxOff.filter.type = 'lowpass';
+            const fVal = getKnobVal("FILTER", "FREQ");
+            const rVal = getKnobVal("FILTER", "RES");
+            fxOff.filter.frequency.value = Math.pow(fVal, 3) * 22000;
+            fxOff.filter.Q.value = rVal * 15;
+            fxOff.filterDrive.curve = getDistortionCurve(rVal * 50); 
+            fxOff.filterDrive.connect(fxOff.filter);
+            fxOff.filter.connect(mDest);
+            fxOff.filterInput = fxOff.filterDrive; 
+
+            // STUTTER
+            fxOff.stutter.gain.value = 0;
+            fxOff.stutterLfo.type = 'square';
+            fxOff.stutterLfo.frequency.value = (getKnobVal("STUTTER", "RATE") * 15) + 1;
+            const stAmp = offCtx.createGain(); stAmp.gain.value = 0.5;
+            const stOff = offCtx.createConstantSource(); stOff.offset.value = 0.5; stOff.start(0);
+            fxOff.stutterLfo.connect(stAmp); stAmp.connect(fxOff.stutter.gain); stOff.connect(fxOff.stutter.gain);
+            fxOff.stutterLfo.start(0);
+            fxOff.stutter.connect(mDest);
+
+            scheduleTracks(0, offCtx, mDest, fxOff);
+            
+            const renderedBuffer = await offCtx.startRendering();
+            const wavBlob = audioBufferToWav(renderedBuffer);
+            
+            const url = URL.createObjectURL(wavBlob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "pigeon_perfect_loop.wav";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+        } catch(err) {
+            console.error("Fehler beim Export:", err);
+            alert("Es gab ein Problem beim Exportieren (siehe Konsole).");
+        } finally {
+            // FIX: Button wird IMMER wieder freigegeben, auch bei einem Fehler
+            exportWavBtn.innerText = "Export WAV";
+            exportWavBtn.disabled = false;
         }
-        fxOff.reverbConvolver = offCtx.createConvolver();
-        fxOff.reverbConvolver.buffer = impulse;
-
-        fxOff.reverbInput.connect(fxOff.reverbConvolver);
-        fxOff.reverbConvolver.connect(fxOff.reverbFilter);
-        fxOff.reverbFilter.connect(fxOff.reverbMix);
-        fxOff.reverbMix.connect(mDest);
-        
-        const ap1 = offCtx.createBiquadFilter(); ap1.type = "allpass"; ap1.frequency.value = 300;
-        const ap2 = offCtx.createBiquadFilter(); ap2.type = "allpass"; ap2.frequency.value = 1000;
-        
-        revSum.connect(ap1); ap1.connect(ap2); ap2.connect(fxOff.reverbFilter);
-        fxOff.reverbFilter.connect(fxOff.reverbMix); 
-        fxOff.reverbMix.connect(mDest);
-
-        // Filter Setup
-        fxOff.filter.type = 'lowpass';
-        const fVal = getKnobVal("FILTER", "FREQ");
-        const rVal = getKnobVal("FILTER", "RES");
-        fxOff.filter.frequency.value = Math.pow(fVal, 3) * 22000;
-        fxOff.filter.Q.value = rVal * 15;
-        fxOff.filterDrive.curve = getDistortionCurve(rVal * 50); 
-        fxOff.filterDrive.connect(fxOff.filter);
-        fxOff.filter.connect(mDest);
-        fxOff.filterInput = fxOff.filterDrive; 
-
-        // Stutter Setup
-        fxOff.stutter.gain.value = 0;
-        fxOff.stutterLfo.type = 'square';
-        fxOff.stutterLfo.frequency.value = (getKnobVal("STUTTER", "RATE") * 15) + 1;
-        const stAmp = offCtx.createGain(); stAmp.gain.value = 0.5;
-        const stOff = offCtx.createConstantSource(); stOff.offset.value = 0.5; stOff.start(0);
-        fxOff.stutterLfo.connect(stAmp); stAmp.connect(fxOff.stutter.gain); stOff.connect(fxOff.stutter.gain);
-        fxOff.stutterLfo.start(0);
-        fxOff.stutter.connect(mDest);
-
-        scheduleTracks(0, offCtx, mDest, fxOff);
-        
-        const renderedBuffer = await offCtx.startRendering();
-        const wavBlob = audioBufferToWav(renderedBuffer);
-        
-        const url = URL.createObjectURL(wavBlob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "pigeon_perfect_loop.wav";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        exportWavBtn.innerText = "Export WAV";
-        exportWavBtn.disabled = false;
     });
 
     document.getElementById("playButton").addEventListener("click", () => {
@@ -1253,7 +1258,7 @@ function setupTrackControls(t) {
     if(snapBox) snapBox.addEventListener("change", e => t.snap = e.target.checked);
 }
 
-// --- CLIPPING LED LOGIK (Grün -> Orange -> Rot) ---
+// --- CLIPPING LED LOGIK ---
 const peakDataArray = new Float32Array(256);
 const clippingLEDs = [
     document.getElementById('peak-t1'),
