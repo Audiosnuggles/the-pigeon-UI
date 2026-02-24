@@ -172,30 +172,37 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
 .track__canvas-wrap { flex: 1; height: 101px; background: #fff; border: 1px solid var(--color-border-light); overflow: hidden; }
 .track__canvas { display: block; width: 100%; height: 100%; }
 
-//* ═══════════════════════════════════════
-   TRACK SIDE CONTROLS (Zentriert & Mischpult-Look)
+/* ═══════════════════════════════════════
+   TRACK SIDE CONTROLS (Vertikal & Platzsparend)
 ═══════════════════════════════════════ */
 .track__side { 
   display: flex; 
-  flex-direction: row;        /* Elemente nebeneinander */
-  align-items: center;        /* Vertikal im Track zentrieren */
-  justify-content: center;    /* Horizontal zentrieren */
-  padding: 0 20px 0 15px; 
+  flex-direction: column;     /* Wieder klassisch untereinander */
+  align-items: center; 
+  justify-content: center; 
+  padding: 0 15px; 
   flex-shrink: 0; 
-  gap: 22px;                  /* Fester Abstand zwischen State, Vol und Snap */
-  height: 101px;              /* Entspricht exakt der Höhe des Canvas */
+  gap: 10px;                  /* Abstand zwischen den 3 Reihen */
+  height: 101px; 
+  min-width: 85px;            /* Nimmt kaum Platz vom Canvas weg */
+  box-sizing: border-box;
 }
 
-/* Ein einzelner Block (z.B. Slider oben, Label unten) */
+/* Reihe 1: Solo und Mute nebeneinander */
+.track__control-row {
+  display: flex;
+  gap: 12px;                  /* Abstand zwischen Solo und Mute */
+}
+
+/* Ein einzelner Block (Element oben, Label unten) */
 .track__control-block {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;                   /* Abstand zwischen Button/Slider und dem Text darunter */
+  gap: 4px;                   /* Enger Abstand zwischen Button/Slider und Label */
 }
 
-/* Die neuen, zentrierten Labels */
 .track__control-label {
   font-family: 'Arial', sans-serif;
   font-size: 9px;
@@ -206,25 +213,24 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
   line-height: 1;
 }
 
-/* STATE: Solo & Mute */
-.track__mute-solo { display: flex; gap: 6px; align-items: center; }
-.btn--solo { width: 20px; height: 20px; background: var(--color-dark-gray); border: 1px solid var(--color-border); border-radius: var(--radius-md); transition: background .12s; }
+/* BUTTONS */
+.btn--solo, .btn--mute { width: 20px; height: 20px; background: var(--color-dark-gray); border: 1px solid var(--color-border); border-radius: var(--radius-md); transition: background .12s; color: white; font-size: 10px; font-weight: bold; cursor: pointer; }
 .btn--solo.active { background: var(--color-blue); }
-.btn--mute { width: 20px; height: 20px; background: var(--color-dark-gray); border: 1px solid var(--color-border); border-radius: var(--radius-md); transition: background .12s; }
 .btn--mute.active { background: var(--color-red); }
 
-/* VOLUME & CLIPPING LED */
-.track__vol-wrapper { display: flex; align-items: center; gap: 8px; }
+/* VOLUME & LED */
+.track__vol-wrapper { display: flex; align-items: center; gap: 8px; flex-direction: row; }
 .clipping-led { width: 6px; height: 6px; background: #4a0000; border-radius: 1px; box-shadow: inset 0 0 2px rgba(0,0,0,0.5); transition: background 0.05s, box-shadow 0.05s; }
 .clipping-led.peak { background: #ff0000; box-shadow: 0 0 8px #ff0000; }
 
-.slider { -webkit-appearance: none; appearance: none; width: 72px; height: 7px; border-radius: 3.5px; background: var(--color-light-gray); border: 1px solid var(--color-medium-gray); outline: none; cursor: pointer; }
+.slider { -webkit-appearance: none; appearance: none; width: 50px; height: 7px; border-radius: 3.5px; background: var(--color-light-gray); border: 1px solid var(--color-medium-gray); outline: none; cursor: pointer; }
 .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--color-blue); border: 1px solid var(--color-medium-gray); }
 
 /* SNAP */
 .snap-checkbox { display: none; }
 .snap-box { display: inline-block; width: 14px; height: 14px; border-radius: var(--radius-md); border: 1px solid var(--color-border); background: #fff; cursor: pointer; transition: background .12s; }
 .snap-checkbox:checked + .snap-box { background: var(--color-pink); border-color: var(--color-pink); }
+
 
 /* ═══════════════════════════════════════
    TOOLS + PERFORMANCE PANEL
