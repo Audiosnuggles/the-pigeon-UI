@@ -51,8 +51,8 @@
           <div class="btn-ms-wrap"><button class="btn--solo"></button><span class="btn-ms-label">Solo</span></div>
           <div class="btn-ms-wrap"><button class="btn--mute mute-btn"></button><span class="btn-ms-label">Mute</span></div>
         </div>
-        <div class="track__vol"><input class="slider volume-slider" type="range" min="0" max="1" step="0.01" value="0.8"><span class="vol-label">Volume</span></div>
-        <div class="track__snap"><label><input class="snap-checkbox" type="checkbox"><span class="snap-box"></span></label><span class="snap-label">Snap</span></div>
+        <div class="track__vol"><input id="vol-t1" class="slider volume-slider" type="range" min="0" max="1" step="0.01" value="0.8"><span class="vol-label">Volume</span></div>
+        <div class="track__snap"><label><input id="snap-t1" class="snap-checkbox" type="checkbox"><span class="snap-box"></span></label><span class="snap-label">Snap</span></div>
       </div>
     </div>
 
@@ -70,8 +70,8 @@
           <div class="btn-ms-wrap"><button class="btn--solo"></button><span class="btn-ms-label">Solo</span></div>
           <div class="btn-ms-wrap"><button class="btn--mute mute-btn"></button><span class="btn-ms-label">Mute</span></div>
         </div>
-        <div class="track__vol"><input class="slider volume-slider" type="range" min="0" max="1" step="0.01" value="0.8"><span class="vol-label">Volume</span></div>
-        <div class="track__snap"><label><input class="snap-checkbox" type="checkbox"><span class="snap-box"></span></label><span class="snap-label">Snap</span></div>
+        <div class="track__vol"><input id="vol-t2" class="slider volume-slider" type="range" min="0" max="1" step="0.01" value="0.8"><span class="vol-label">Volume</span></div>
+        <div class="track__snap"><label><input id="snap-t2" class="snap-checkbox" type="checkbox"><span class="snap-box"></span></label><span class="snap-label">Snap</span></div>
       </div>
     </div>
 
@@ -89,8 +89,8 @@
           <div class="btn-ms-wrap"><button class="btn--solo"></button><span class="btn-ms-label">Solo</span></div>
           <div class="btn-ms-wrap"><button class="btn--mute mute-btn"></button><span class="btn-ms-label">Mute</span></div>
         </div>
-        <div class="track__vol"><input class="slider volume-slider" type="range" min="0" max="1" step="0.01" value="0.8"><span class="vol-label">Volume</span></div>
-        <div class="track__snap"><label><input class="snap-checkbox" type="checkbox"><span class="snap-box"></span></label><span class="snap-label">Snap</span></div>
+        <div class="track__vol"><input id="vol-t3" class="slider volume-slider" type="range" min="0" max="1" step="0.01" value="0.8"><span class="vol-label">Volume</span></div>
+        <div class="track__snap"><label><input id="snap-t3" class="snap-checkbox" type="checkbox"><span class="snap-box"></span></label><span class="snap-label">Snap</span></div>
       </div>
     </div>
 
@@ -108,8 +108,8 @@
           <div class="btn-ms-wrap"><button class="btn--solo"></button><span class="btn-ms-label">Solo</span></div>
           <div class="btn-ms-wrap"><button class="btn--mute mute-btn"></button><span class="btn-ms-label">Mute</span></div>
         </div>
-        <div class="track__vol"><input class="slider volume-slider" type="range" min="0" max="1" step="0.01" value="0.8"><span class="vol-label">Volume</span></div>
-        <div class="track__snap"><label><input class="snap-checkbox" type="checkbox"><span class="snap-box"></span></label><span class="snap-label">Snap</span></div>
+        <div class="track__vol"><input id="vol-t4" class="slider volume-slider" type="range" min="0" max="1" step="0.01" value="0.8"><span class="vol-label">Volume</span></div>
+        <div class="track__snap"><label><input id="snap-t4" class="snap-checkbox" type="checkbox"><span class="snap-box"></span></label><span class="snap-label">Snap</span></div>
       </div>
     </div>
 
@@ -361,45 +361,6 @@
 
     </div>
 
-      <div class="ctrl-action-blocks">
-        
-        <div class="ctrl-block">
-          <div class="ctrl-btn-row">
-            <button id="playButton" class="btn--ctrl btn--play">PLAY</button>
-            <button id="stopButton" class="btn--ctrl">STOP</button>
-            <button id="undoButton" class="btn--ctrl">UNDO</button>
-          </div>
-          <div class="ctrl-btn-row">
-            <button id="recButton" class="btn--ctrl btn--rec"><span class="rec-dot"></span>REC</button>
-            <button id="clearButton" class="btn--ctrl">CLEAR ALL</button>
-          </div>
-        </div>
-
-        <div class="ctrl-block">
-          <div class="ctrl-btn-row">
-            <button id="importButton" class="btn--ctrl">IMPORT SET</button>
-            <input type="file" id="importFileInput" style="display:none" accept=".json" />
-            <button id="exportWavButton" class="btn--ctrl">EXPORT WAV</button>
-          </div>
-          <div class="ctrl-btn-row">
-            <button id="exportButton" class="btn--ctrl">EXPORT SET</button>
-            <button id="helpBtn" class="btn--help">HELP</button>
-          </div>
-        </div>
-
-        <div class="ctrl-block" style="width: 120px;">
-          <div class="ctrl-btn-row" style="width: 100%;">
-            <button id="extSyncBtn" class="btn--ext-sync">EXT SYNC</button>
-          </div>
-          <div class="ctrl-btn-row" style="width: 100%;">
-            <select id="midiInputSelect" disabled class="select-btn" style="width: 100%; height: 34px; border: 1px solid var(--color-border-btn);"></select>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-
     <div class="pattern-bank" id="pattern-machine">
       <div class="pattern-bank__head">
         <span class="pattern-bank__title">Pattern</span>
@@ -480,8 +441,6 @@
 
 <div id="custom-eraser"></div>
 
-<script src="canvas.js" type="module"></script>
-<script src="audio.js" type="module"></script>
 <script src="canvas.js" type="module"></script>
 <script src="audio.js" type="module"></script>
 <script src="ui.js" type="module"></script>
