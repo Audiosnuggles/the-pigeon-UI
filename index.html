@@ -264,52 +264,75 @@
   <footer class="control-bar" id="controls">
 
     <div class="control-bar__left">
-      <span class="control-bar__label">Control</span>
-
-      <div class="ctrl-meta-row">
-        <button id="extSyncBtn" class="btn--ext-sync">EXT SYNC</button>
-        <select id="midiInputSelect" disabled class="select-btn" style="width: 100px; display:inline-block;"></select>
-
-        <div class="tempo-wrap">
-          <span>Tempo</span>
-          <input id="bpmInput" class="tempo-box" type="number" min="40" max="240" value="120" style="border:none; outline:none; text-align:center;">
-        </div>
+      
+      <div class="ctrl-top-row">
+        <span class="control-bar__label">Control</span>
         
-        <label class="toggle-wrap" style="cursor:pointer">
-          <span>Loop</span>
-          <input type="checkbox" id="loopCheckbox" style="display:none" checked>
-          <span class="toggle-sq toggle-ui"></span>
-        </label>
+        <div class="ctrl-meta-right">
+          <div class="tempo-wrap">
+            <span>Tempo</span>
+            <input id="bpmInput" class="tempo-box" type="number" min="40" max="240" value="120" style="border:none; outline:none; text-align:center;">
+          </div>
+          
+          <label class="toggle-wrap">
+            <span>Loop</span>
+            <input type="checkbox" id="loopCheckbox" style="display:none" checked>
+            <span class="toggle-sq toggle-ui"></span>
+          </label>
 
-        <label class="toggle-wrap" style="cursor:pointer">
-          <span>Harmonize</span>
-          <input type="checkbox" id="harmonizeCheckbox" style="display:none">
-          <span class="toggle-sq toggle-ui"></span>
-        </label>
-        <div id="scaleSelectContainer" style="display:none; margin-left: 2px;">
-          <select id="scaleSelect" class="select-btn" style="width: auto;">
-            <option value="major">Major</option>
-            <option value="minor">Minor</option>
-            <option value="pentatonic">Pentatonic</option>
-          </select>
+          <label class="toggle-wrap">
+            <span>Harmonize</span>
+            <input type="checkbox" id="harmonizeCheckbox" style="display:none">
+            <span class="toggle-sq toggle-ui"></span>
+          </label>
+          
+          <div id="scaleSelectContainer" style="display:none; margin-left: 2px;">
+            <select id="scaleSelect" class="select-btn" style="width: auto;">
+              <option value="major">Major</option>
+              <option value="minor">Minor</option>
+              <option value="pentatonic">Pentatonic</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <div class="ctrl-btn-row">
-        <button id="playButton" class="btn--ctrl">PLAY</button>
-        <button id="stopButton" class="btn--ctrl">STOP</button>
-        <button id="undoButton" class="btn--ctrl">UNDO</button>
-        <button id="importButton" class="btn--ctrl">IMPORT SET</button>
-        <input type="file" id="importFileInput" style="display:none" accept=".json" />
-        <button id="exportWavButton" class="btn--ctrl">EXPORT WAV</button>
+      <div class="ctrl-action-blocks">
+        
+        <div class="ctrl-block">
+          <div class="ctrl-btn-row">
+            <button id="playButton" class="btn--ctrl btn--play">PLAY</button>
+            <button id="stopButton" class="btn--ctrl">STOP</button>
+            <button id="undoButton" class="btn--ctrl">UNDO</button>
+          </div>
+          <div class="ctrl-btn-row">
+            <button id="recButton" class="btn--ctrl btn--rec"><span class="rec-dot"></span>REC</button>
+            <button id="clearButton" class="btn--ctrl">CLEAR ALL</button>
+          </div>
+        </div>
+
+        <div class="ctrl-block">
+          <div class="ctrl-btn-row">
+            <button id="importButton" class="btn--ctrl">IMPORT SET</button>
+            <input type="file" id="importFileInput" style="display:none" accept=".json" />
+            <button id="exportWavButton" class="btn--ctrl">EXPORT WAV</button>
+          </div>
+          <div class="ctrl-btn-row">
+            <button id="exportButton" class="btn--ctrl">EXPORT SET</button>
+            <button id="helpBtn" class="btn--help">HELP</button>
+          </div>
+        </div>
+
+        <div class="ctrl-block" style="width: 120px;">
+          <div class="ctrl-btn-row" style="width: 100%;">
+            <button id="extSyncBtn" class="btn--ext-sync">EXT SYNC</button>
+          </div>
+          <div class="ctrl-btn-row" style="width: 100%;">
+            <select id="midiInputSelect" disabled class="select-btn" style="width: 100%; height: 34px; border: 1px solid var(--color-border-btn);"></select>
+          </div>
+        </div>
+
       </div>
 
-      <div class="ctrl-btn-row">
-        <button id="recButton" class="btn--ctrl btn--rec"><span class="rec-dot"></span>REC</button>
-        <button id="clearButton" class="btn--ctrl">CLEAR ALL</button>
-        <button id="exportButton" class="btn--ctrl">EXPORT SET</button>
-        <button id="helpBtn" class="btn--help">HELP</button>
-      </div>
     </div>
 
     <div class="pattern-bank" id="pattern-machine">
