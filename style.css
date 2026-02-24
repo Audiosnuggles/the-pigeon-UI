@@ -82,7 +82,7 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
 ═══════════════════════════════════════ */
 .header {
   display: flex; 
-  align-items: center; 
+  align-items: center; /* HIER GEÄNDERT: Zentriert Titel und Logo/Taube vertikal */
   justify-content: space-between; 
   padding: 14px 16px 8px 16px;
 }
@@ -91,6 +91,8 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
   display: flex; 
   flex-direction: column; 
   gap: 0; 
+  margin-left: 0px; /* NEU: Schiebt den Text nach rechts, genau bündig mit den Farbbalken */
+  margin-top: -8px; /* hoch */
 }
 
 .header__title { 
@@ -98,7 +100,7 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
   font-size: 26px; 
   line-height: 1.1; 
   font-weight: normal; 
-  color: #4B4B4B; 
+  color: #4B4B4B; /* Das dunkle, weiche Schwarz */
   margin: 0; 
 }
 
@@ -107,12 +109,35 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
 .header__right {
   display: flex;
   align-items: center;
-  gap: 15px; 
+  gap: 15px;
 }
 
 .header__logo-icon {
   width: 65px; 
   height: auto;
+  margin-top: 6px; /* NEU: Schiebt das SVG-Logo ein paar Pixel nach unten */
+}
+
+#pigeon { 
+  width: 60px; 
+  opacity: 0.8; 
+  pointer-events: none; 
+  transform-origin: bottom center; 
+  transition: transform 0.05s ease-out; 
+}
+
+.title-line { display: block; }
+
+.header__right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header__logo-icon {
+  width: 65px; 
+  height: auto;
+  margin-top: 6px; /* NEU: Schiebt das SVG-Logo ein paar Pixel nach unten */
 }
 
 #pigeon { 
