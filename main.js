@@ -1,6 +1,6 @@
 import { drawGrid, redrawTrack } from './canvas.js';
 import { 
-    initAudio, audioCtx, masterGain, analyser, fxNodes, trackSends, 
+    initAudio, audioCtx, masterGain, analyser, fxNodes, trackSends, trackAnalysers,
     connectTrackToFX, getDistortionCurve, mapYToFrequency, quantizeFrequency,
     updateReverbDecay
 } from './audio.js';
@@ -1238,3 +1238,59 @@ function setupTrackControls(t) {
     const snapBox = cont.querySelector(".snap-checkbox");
     if(snapBox) snapBox.addEventListener("change", e => t.snap = e.target.checked);
 }
+
+// --- CLIPPING LED LOGIK (Grün -> Orange -> Rot) ---
+const peakDataArray = new Float32Array(256);
+const clippingLEDs = [
+    document.getElementById('peak-t1'),
+    document.getElementById('peak-t2'),
+    document.getElementById('peak-t3'),
+    document.getElementById('peak-t4')
+];
+
+function updateClippingLEDs() {
+    if (!audioCtx || !trackAnalysers || trackAnalysers.length === 0) {
+        requestAnimationFrame(updateClippingLEDs);
+        return;
+    }
+
+    for (let i = 0; i < 4; i++) {
+        const analyser = trackAnalysers[i];
+        const led = clippingLEDs[i];
+        
+        if (!analyser || !led) continue;
+        
+        analyser.getFloatTimeDomainData(peakDataArray);
+        
+        // Den höchsten Pegel-Ausschlag (Peak) in diesem Frame finden
+        let maxPeak = 0;
+        for (let j = 0; j < peakDataArray.length; j++) {
+            const absValue = Math.abs(peakDataArray[j]);
+            if (absValue > maxPeak) {
+                maxPeak = absValue;
+            }
+        }
+
+        // Klassen entsprechend dem Pegel vergeben
+        if (maxPeak >= 0.95) {
+            // ROT: Übersteuerung
+            led.classList.add('peak');
+            led.classList.remove('warning');
+        } else if (maxPeak >= 0.75) {
+            // ORANGE: Heißes Signal (Warnung)
+            led.classList.add('warning');
+            led.classList.remove('peak');
+        } else {
+            // GRÜN: Normales Signal
+            led.classList.remove('peak');
+            led.classList.remove('warning');
+        }
+        
+        led.style.background = ''; // Inline-Styles aufräumen
+    }
+
+    requestAnimationFrame(updateClippingLEDs);
+}
+
+// Schleife starten
+updateClippingLEDs();

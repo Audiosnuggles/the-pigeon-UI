@@ -3,6 +3,7 @@ export let masterGain;
 export let analyser;
 export const fxNodes = { delay: {}, reverb: {}, vibrato: {}, filter: {}, stutter: {} };
 export const trackSends = [[], [], [], []];
+export const trackAnalysers = []; // NEU: Hier speichern wir die 4 Messgeräte für die LEDs
 
 export function initAudio(tracks, updateRoutingCallback) {
     if (audioCtx) return;
@@ -105,6 +106,10 @@ export function initAudio(tracks, updateRoutingCallback) {
     fxNodes.stutter.gate.connect(masterGain); 
 
     tracks.forEach((t, i) => {
+        // NEU: Analyser für diesen Track erstellen
+        trackAnalysers[i] = audioCtx.createAnalyser();
+        trackAnalysers[i].fftSize = 256;
+
         trackSends[i] = {
             dry: audioCtx.createGain(),
             delay: audioCtx.createGain(),
@@ -121,7 +126,10 @@ export function initAudio(tracks, updateRoutingCallback) {
         trackSends[i].filter.gain.value = 0;
         trackSends[i].stutter.gain.value = 0;
 
-        trackSends[i].dry.connect(masterGain);
+        // WICHTIG: Das Routing! Das Dry-Signal geht erst in den Analyser und von dort in den Master
+        trackSends[i].dry.connect(trackAnalysers[i]);
+        trackAnalysers[i].connect(masterGain);
+
         trackSends[i].delay.connect(fxNodes.delay.input);
         trackSends[i].reverb.connect(fxNodes.reverb.input);
         trackSends[i].vibrato.connect(fxNodes.vibrato.input);
