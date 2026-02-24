@@ -330,7 +330,7 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
 
 .ctrl-action-blocks { display: flex; align-items: flex-start; gap: 32px; margin-top: -2px; } 
 .ctrl-block { display: flex; flex-direction: column; gap: 6px; width: auto; } 
-.ctrl-btn-row { display: flex; align-items: center; gap: 8px; height: 34px; } 
+.ctrl-btn-row { display: flex; align-items: center; gap: 8px; min-height: 36px;; } 
 
 .btn--ctrl { background: var(--color-bg-button); border: 1px solid var(--color-border-btn); border-radius: var(--radius-sm); height: 34px; padding: 0 16px; font-size: 11.5px; font-family: 'Arial', sans-serif; color: #292929; white-space: nowrap; transition: background .12s; }
 .btn--ctrl:hover { background: #e8e8e8; }
