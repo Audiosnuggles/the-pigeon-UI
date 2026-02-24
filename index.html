@@ -4,17 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>The Pigeon.</title>
-  <link rel="stylesheet" href="style.css" />
+  
   <meta property="og:type" content="website">
-<meta property="og:url" content="https://thehumants.com/the-pigeon-UI/index.html">
-<meta property="og:title" content="The Pigeon - Free Experimental Sound Drawing Sequencer">
-<meta property="og:description" content="Draw your sound. An interactive visual sequencer for experimental music.">
-<meta property="og:image" content="https://thehumants.com/the-pigeon-UI/og-image.jpg">
+  <meta property="og:url" content="https://thehumants.com/the-pigeon-UI/index.html">
+  <meta property="og:title" content="The Pigeon - Sound Drawing Sequencer">
+  <meta property="og:description" content="Zeichne deinen Sound. Ein interaktiver visueller Sequencer für experimentelle Musik.">
+  <meta property="og:image" content="https://thehumants.com/the-pigeon-UI/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Pigeon - Sound Drawing Sequencer">
+  <meta name="twitter:description" content="Zeichne deinen Sound. Ein interaktiver visueller Sequencer für experimentelle Musik.">
+  <meta name="twitter:image" content="https://thehumants.com/the-pigeon-UI/og-image.jpg">
 
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="The Pigeon - Sound Drawing Sequencer">
-<meta name="twitter:description" content="Draw your sound. An interactive visual sequencer for experimental music.">
-<meta name="twitter:image" content="https://thehumants.com/the-pigeon-UI/og-image.jpg">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 <div class="app">
@@ -57,12 +58,24 @@
       <div class="track__freq"><span>1k</span><span>500</span><span>250</span><span>80</span></div>
       <div class="track__canvas-wrap"><canvas class="track__canvas" width="750" height="100"></canvas></div>
       <div class="track__side">
-        <div class="track__mute-solo controls-right">
-          <div class="btn-ms-wrap"><button class="btn--solo"></button><span class="btn-ms-label">Solo</span></div>
-          <div class="btn-ms-wrap"><button class="btn--mute mute-btn"></button><span class="btn-ms-label">Mute</span></div>
+        <div class="track__control-block">
+          <div class="track__mute-solo controls-right">
+            <button class="btn--solo"></button>
+            <button class="btn--mute mute-btn"></button>
+          </div>
+          <span class="track__control-label">State</span>
         </div>
-        <div class="track__vol"><input id="vol-t1" class="slider volume-slider" type="range" min="0" max="1" step="0.01" value="0.8"><span class="vol-label">Volume</span></div>
-        <div class="track__snap"><label><input id="snap-t1" class="snap-checkbox" type="checkbox"><span class="snap-box"></span></label><span class="snap-label">Snap</span></div>
+        <div class="track__control-block">
+          <div class="track__vol-wrapper">
+            <div class="clipping-led" id="peak-t1"></div>
+            <input id="vol-t1" class="slider volume-slider" type="range" min="0" max="1" step="0.01" value="0.8">
+          </div>
+          <span class="track__control-label">Volume</span>
+        </div>
+        <div class="track__control-block">
+          <label><input id="snap-t1" class="snap-checkbox" type="checkbox"><span class="snap-box"></span></label>
+          <span class="track__control-label">Snap</span>
+        </div>
       </div>
     </div>
 
@@ -76,12 +89,24 @@
       <div class="track__freq"><span>1k</span><span>500</span><span>250</span><span>80</span></div>
       <div class="track__canvas-wrap"><canvas class="track__canvas" width="750" height="100"></canvas></div>
       <div class="track__side">
-        <div class="track__mute-solo controls-right">
-          <div class="btn-ms-wrap"><button class="btn--solo"></button><span class="btn-ms-label">Solo</span></div>
-          <div class="btn-ms-wrap"><button class="btn--mute mute-btn"></button><span class="btn-ms-label">Mute</span></div>
+        <div class="track__control-block">
+          <div class="track__mute-solo controls-right">
+            <button class="btn--solo"></button>
+            <button class="btn--mute mute-btn"></button>
+          </div>
+          <span class="track__control-label">State</span>
         </div>
-        <div class="track__vol"><input id="vol-t2" class="slider volume-slider" type="range" min="0" max="1" step="0.01" value="0.8"><span class="vol-label">Volume</span></div>
-        <div class="track__snap"><label><input id="snap-t2" class="snap-checkbox" type="checkbox"><span class="snap-box"></span></label><span class="snap-label">Snap</span></div>
+        <div class="track__control-block">
+          <div class="track__vol-wrapper">
+            <div class="clipping-led" id="peak-t2"></div>
+            <input id="vol-t2" class="slider volume-slider" type="range" min="0" max="1" step="0.01" value="0.8">
+          </div>
+          <span class="track__control-label">Volume</span>
+        </div>
+        <div class="track__control-block">
+          <label><input id="snap-t2" class="snap-checkbox" type="checkbox"><span class="snap-box"></span></label>
+          <span class="track__control-label">Snap</span>
+        </div>
       </div>
     </div>
 
@@ -95,12 +120,24 @@
       <div class="track__freq"><span>1k</span><span>500</span><span>250</span><span>80</span></div>
       <div class="track__canvas-wrap"><canvas class="track__canvas" width="750" height="100"></canvas></div>
       <div class="track__side">
-        <div class="track__mute-solo controls-right">
-          <div class="btn-ms-wrap"><button class="btn--solo"></button><span class="btn-ms-label">Solo</span></div>
-          <div class="btn-ms-wrap"><button class="btn--mute mute-btn"></button><span class="btn-ms-label">Mute</span></div>
+        <div class="track__control-block">
+          <div class="track__mute-solo controls-right">
+            <button class="btn--solo"></button>
+            <button class="btn--mute mute-btn"></button>
+          </div>
+          <span class="track__control-label">State</span>
         </div>
-        <div class="track__vol"><input id="vol-t3" class="slider volume-slider" type="range" min="0" max="1" step="0.01" value="0.8"><span class="vol-label">Volume</span></div>
-        <div class="track__snap"><label><input id="snap-t3" class="snap-checkbox" type="checkbox"><span class="snap-box"></span></label><span class="snap-label">Snap</span></div>
+        <div class="track__control-block">
+          <div class="track__vol-wrapper">
+            <div class="clipping-led" id="peak-t3"></div>
+            <input id="vol-t3" class="slider volume-slider" type="range" min="0" max="1" step="0.01" value="0.8">
+          </div>
+          <span class="track__control-label">Volume</span>
+        </div>
+        <div class="track__control-block">
+          <label><input id="snap-t3" class="snap-checkbox" type="checkbox"><span class="snap-box"></span></label>
+          <span class="track__control-label">Snap</span>
+        </div>
       </div>
     </div>
 
@@ -114,12 +151,24 @@
       <div class="track__freq"><span>1k</span><span>500</span><span>250</span><span>80</span></div>
       <div class="track__canvas-wrap"><canvas class="track__canvas" width="750" height="100"></canvas></div>
       <div class="track__side">
-        <div class="track__mute-solo controls-right">
-          <div class="btn-ms-wrap"><button class="btn--solo"></button><span class="btn-ms-label">Solo</span></div>
-          <div class="btn-ms-wrap"><button class="btn--mute mute-btn"></button><span class="btn-ms-label">Mute</span></div>
+        <div class="track__control-block">
+          <div class="track__mute-solo controls-right">
+            <button class="btn--solo"></button>
+            <button class="btn--mute mute-btn"></button>
+          </div>
+          <span class="track__control-label">State</span>
         </div>
-        <div class="track__vol"><input id="vol-t4" class="slider volume-slider" type="range" min="0" max="1" step="0.01" value="0.8"><span class="vol-label">Volume</span></div>
-        <div class="track__snap"><label><input id="snap-t4" class="snap-checkbox" type="checkbox"><span class="snap-box"></span></label><span class="snap-label">Snap</span></div>
+        <div class="track__control-block">
+          <div class="track__vol-wrapper">
+            <div class="clipping-led" id="peak-t4"></div>
+            <input id="vol-t4" class="slider volume-slider" type="range" min="0" max="1" step="0.01" value="0.8">
+          </div>
+          <span class="track__control-label">Volume</span>
+        </div>
+        <div class="track__control-block">
+          <label><input id="snap-t4" class="snap-checkbox" type="checkbox"><span class="snap-box"></span></label>
+          <span class="track__control-label">Snap</span>
+        </div>
       </div>
     </div>
 
@@ -411,7 +460,6 @@
     <div id="help-de">
       <h2>Sound Drawing Sequencer</h2>
       <div class="help-grid-expanded">
-        
         <div class="help-section">
           <h3>1. Loslegen: Zeichne deinen Sound</h3>
           <ul>
@@ -421,7 +469,6 @@
             <li><strong>Pinsel:</strong> Nutze verschiedene Brushes (z.B. Particles oder Chord) für komplexe Klangtexturen.</li>
           </ul>
         </div>
-
         <div class="help-section">
           <h3>2. Die 4 Tonspuren (Tracks)</h3>
           <ul>
@@ -431,7 +478,6 @@
             <li><strong>Volume:</strong> Regle die Lautstärke jeder Spur über den Slider ab.</li>
           </ul>
         </div>
-
         <div class="help-section">
           <h3>3. Live spielen & Effekte</h3>
           <ul>
@@ -440,7 +486,6 @@
             <li><strong>X/Y Link:</strong> Ist dies aktiv, steuert das <em>Poke Me Pad</em> keine Töne mehr, sondern bedient die beiden Effekt-Regler live (X = Links, Y = Rechts).</li>
           </ul>
         </div>
-
         <div class="help-section">
           <h3>4. Rhythmus & Sync</h3>
           <ul>
@@ -449,7 +494,6 @@
             <li><strong>EXT SYNC (DAW Setup):</strong> Erstelle ein virtuelles MIDI-Kabel (Mac: <em>IAC-Treiber</em>, Win: <em>loopMIDI</em>). Aktiviere in deiner DAW (z.B. Ableton) den Sync-Out für dieses Kabel. Wähle den Port im Dropdown und aktiviere EXT SYNC.</li>
           </ul>
         </div>
-
         <div class="help-section" style="grid-column: 1 / -1;">
           <h3>5. Speichern, Export & Aktionen</h3>
           <ul style="column-count: 2; column-gap: 40px;">
@@ -460,14 +504,12 @@
             <li><strong>Set Import/Export:</strong> Speichert dein gesamtes Projekt als Datei ab.</li>
           </ul>
         </div>
-
       </div>
     </div>
 
     <div id="help-en" style="display: none;">
       <h2>Sound Drawing Sequencer</h2>
       <div class="help-grid-expanded">
-        
         <div class="help-section">
           <h3>1. Get Started: Draw your Sound</h3>
           <ul>
@@ -477,7 +519,6 @@
             <li><strong>Brush:</strong> Use different brushes (e.g., Particles or Chord) for complex textures.</li>
           </ul>
         </div>
-
         <div class="help-section">
           <h3>2. The 4 Tracks</h3>
           <ul>
@@ -487,7 +528,6 @@
             <li><strong>Volume:</strong> Adjust the level of each track separately.</li>
           </ul>
         </div>
-
         <div class="help-section">
           <h3>3. Live Performance & FX</h3>
           <ul>
@@ -496,7 +536,6 @@
             <li><strong>X/Y Link:</strong> Hijacks the Poke Me pad to control the two FX knobs like a live mixer instead of playing notes.</li>
           </ul>
         </div>
-
         <div class="help-section">
           <h3>4. Rhythm & Sync</h3>
           <ul>
@@ -505,7 +544,6 @@
             <li><strong>EXT SYNC (DAW Setup):</strong> Use a virtual MIDI cable (Mac: <em>IAC Driver</em>, Win: <em>loopMIDI</em>). Enable Sync output for it in your DAW (e.g., Ableton). Select the port here and hit EXT SYNC.</li>
           </ul>
         </div>
-
         <div class="help-section" style="grid-column: 1 / -1;">
           <h3>5. Save, Export & Actions</h3>
           <ul style="column-count: 2; column-gap: 40px;">
@@ -516,7 +554,6 @@
             <li><strong>Import/Export Set:</strong> Saves your entire session to disk.</li>
           </ul>
         </div>
-
       </div>
     </div>
 
