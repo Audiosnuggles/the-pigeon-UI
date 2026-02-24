@@ -186,8 +186,9 @@ function applyAllVolumes() {
     const anySolo = tracks.some(tr => tr.solo);
     tracks.forEach(tr => {
         if (tr.gainNode) {
-            const isMuted = tr.mute || (anySolo && !tr.solo);
-            tr.gainNode.gain.setTargetAtTime(isMuted ? 0 : tr.vol, audioCtx.currentTime, 0.05);
+            // Die Profi-Logik: Solo übertrumpft Mute!
+            const isAudible = anySolo ? tr.solo : !tr.mute;
+            tr.gainNode.gain.setTargetAtTime(isAudible ? tr.vol : 0, audioCtx.currentTime, 0.05);
         }
     });
 }
@@ -329,8 +330,9 @@ function loadPatternData(d) {
 }
 
 function startLiveSynth(track, y) {
-    const anySolo = tracks.some(tr => tr.solo);
-    if (track.mute || (anySolo && !track.solo) || track.vol < 0.01) return;
+    const anySolo = tracks.some(t => t.solo);
+    const isAudible = anySolo ? track.solo : !track.mute;
+    if (!isAudible || track.vol < 0.01) return;
     
     liveNodes = []; liveGainNode = audioCtx.createGain(); liveGainNode.gain.setValueAtTime(0, audioCtx.currentTime);
     liveGainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.01);
@@ -385,8 +387,9 @@ function stopLiveSynth() {
 }
 
 function triggerParticleGrain(track, y) { 
-    const anySolo = tracks.some(tr => tr.solo);
-    if(track.mute || (anySolo && !track.solo) || track.vol < 0.01) return; 
+    const anySolo = tracks.some(t => t.solo);
+    const isAudible = anySolo ? track.solo : !track.mute;
+    if (!isAudible || track.vol < 0.01) return; 
     
     let freq = mapYToFrequency(y, 100); 
     if(harmonizeCheckbox.checked) freq = quantizeFrequency(freq, scaleSelect.value); 
