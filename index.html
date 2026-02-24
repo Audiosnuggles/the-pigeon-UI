@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>The Pigeon.</title>
   <link rel="stylesheet" href="style.css" />
+  <meta property="og:type" content="website">
+<meta property="og:url" content="https://thehumants.com/the-pigeon-UI/index.html">
+<meta property="og:title" content="The Pigeon - Free Experimental Sound Drawing Sequencer">
+<meta property="og:description" content="Draw your sound. An interactive visual sequencer for experimental music.">
+<meta property="og:image" content="https://thehumants.com/the-pigeon-UI/og-image.jpg">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Pigeon - Sound Drawing Sequencer">
+<meta name="twitter:description" content="Draw your sound. An interactive visual sequencer for experimental music.">
+<meta name="twitter:image" content="https://thehumants.com/the-pigeon-UI/og-image.jpg">
 </head>
 <body>
 <div class="app">
@@ -394,105 +404,119 @@
 <div id="help-overlay">
   <div class="help-content">
     <div class="help-controls">
-      <button id="langToggleBtn">🇬🇧 English</button>
+      <button id="langToggleBtn">English</button>
       <button id="closeHelpBtn">X</button>
     </div>
 
     <div id="help-de">
-      <h2>🕊️ Sound Drawing Sequencer</h2>
+      <h2>Sound Drawing Sequencer</h2>
       <div class="help-grid-expanded">
+        
         <div class="help-section">
-          <h3>🎨 1. Loslegen: Zeichne deinen Sound</h3>
+          <h3>1. Loslegen: Zeichne deinen Sound</h3>
           <ul>
-            <li><strong>Zeichnen:</strong> Klicke und ziehe auf den weißen Leinwänden (Canvas), um Töne einzuzeichnen.</li>
-            <li><strong>Tonhöhe:</strong> Oben = hohe Töne, Unten = tiefe Töne.</li>
+            <li><strong>Pattern wählen:</strong> Klicke unten rechts in der <em>Pattern Bank</em> auf ein leeres Pad (z.B. unter 'A'), um dort deinen ersten Loop zu starten.</li>
+            <li><strong>Zeichnen:</strong> Klicke und ziehe mit der Maus auf den weißen Leinwänden (Canvas), um Töne einzuzeichnen. Oben = hohe Töne, Unten = tiefe Töne.</li>
             <li><strong>Tools:</strong> Wähle links zwischen <em>Draw</em> (Zeichnen) und <em>Erase</em> (Radieren).</li>
-            <li><strong>Pinsel:</strong> Probier verschiedene Brushes (z.B. Particles oder Chord) für tolle Texturen!</li>
+            <li><strong>Pinsel:</strong> Nutze verschiedene Brushes (z.B. Particles oder Chord) für komplexe Klangtexturen.</li>
           </ul>
         </div>
+
         <div class="help-section">
-          <h3>🎛️ 2. Die 4 Tonspuren (Tracks)</h3>
+          <h3>2. Die 4 Tonspuren (Tracks)</h3>
           <ul>
-            <li><strong>Wellenformen:</strong> Wähle den Grundklang. <strong>∿</strong> (Bass), <strong>⊓</strong> (8-Bit), <strong>∧</strong> (Synth).</li>
-            <li><strong>Snap:</strong> Zwingt deine gezeichneten Linien auf ein rhythmisches Raster (Quantisierung).</li>
-            <li><strong>Solo / Mute:</strong> Schalte Spuren stumm oder höre sie alleine.</li>
-            <li><strong>Volume:</strong> Regle die Lautstärke jeder Spur separat ab.</li>
+            <li><strong>Wellenformen:</strong> Wähle den Grundklang pro Spur. <strong>∿</strong> (Weicher Bass/Lead), <strong>⊓</strong> (Hohler 8-Bit Sound), <strong>∧</strong> (Scharfer Synth).</li>
+            <li><strong>Snap:</strong> Aktivierst du 'Snap', werden deine Zeichnungen auf ein strenges rhythmisches Raster gezwungen (Quantisierung).</li>
+            <li><strong>Solo / Mute:</strong> Schalte einzelne Spuren stumm oder höre sie isoliert.</li>
+            <li><strong>Volume:</strong> Regle die Lautstärke jeder Spur über den Slider ab.</li>
           </ul>
         </div>
+
         <div class="help-section">
-          <h3>🚀 3. Live spielen & Effekte</h3>
+          <h3>3. Live spielen & Effekte</h3>
           <ul>
-            <li><strong>Poke Me Pad:</strong> Wähle rechts bei <em>Target</em> eine Spur und klicke auf das Pad, um live Töne abzufeuern.</li>
-            <li><strong>Effekte (FX):</strong> Klicke auf die farbigen Quadrate im Effekt-Modul, um eine Spur dorthin zu senden.</li>
-            <li><strong>X/Y Link:</strong> Steuert keine Töne mehr, sondern bedient die beiden Effekt-Regler wie ein Live-Mischpult!</li>
+            <li><strong>Poke Me Pad:</strong> Wähle im <em>Target</em>-Feld eine Spur aus. Klicke auf das Pad, um live Töne abzufeuern (X = Zeit, Y = Tonhöhe).</li>
+            <li><strong>Effekte (FX):</strong> Das Rack bietet 6 Effekte. Klicke im Grid auf die Farbe einer Spur, um diese durch den jeweiligen Effekt zu schleifen.</li>
+            <li><strong>X/Y Link:</strong> Ist dies aktiv, steuert das <em>Poke Me Pad</em> keine Töne mehr, sondern bedient die beiden Effekt-Regler live (X = Links, Y = Rechts).</li>
           </ul>
         </div>
+
         <div class="help-section">
-          <h3>⏱️ 4. Rhythmus & Kontrolle</h3>
+          <h3>4. Rhythmus & Sync</h3>
           <ul>
             <li><strong>Play/Stop:</strong> Starte den Loop (Shortcut: <em>Leertaste</em>).</li>
-            <li><strong>Harmonize:</strong> Zwingt deine Zeichnungen in eine saubere musikalische Tonleiter (z.B. Minor/Moll).</li>
-            <li><strong>EXT SYNC:</strong> Verbinde die App mit deiner DAW (z.B. Ableton) über eine virtuelle MIDI-Clock.</li>
+            <li><strong>Harmonize:</strong> Zwingt alle eingezeichneten Frequenzen auf eine feste musikalische Tonleiter (z.B. Minor/Moll).</li>
+            <li><strong>EXT SYNC (DAW Setup):</strong> Erstelle ein virtuelles MIDI-Kabel (Mac: <em>IAC-Treiber</em>, Win: <em>loopMIDI</em>). Aktiviere in deiner DAW (z.B. Ableton) den Sync-Out für dieses Kabel. Wähle den Port im Dropdown und aktiviere EXT SYNC.</li>
           </ul>
         </div>
+
         <div class="help-section" style="grid-column: 1 / -1;">
-          <h3>💾 5. Speichern, Export & Patterns</h3>
+          <h3>5. Speichern, Export & Aktionen</h3>
           <ul style="column-count: 2; column-gap: 40px;">
-            <li><strong>Pattern Bank:</strong> Speichere Loops (Bank A/B/C). Klicke <strong>SAVE</strong> und dann ein Pad.</li>
-            <li><strong>Export WAV:</strong> Lade deinen Loop als Audiodatei herunter.</li>
-            <li><strong>Import/Export Set:</strong> Speichere dein Projekt und lade es später wieder.</li>
-            <li><strong>REC:</strong> Nimm eine Performance auf dem Pad auf und lade sie als WAV herunter!</li>
+            <li><strong>Pattern speichern:</strong> Klicke auf <strong>SAVE</strong> (pulsiert rot) und danach auf ein leeres Pad in der Bank, um den aktuellen Loop zu sichern.</li>
+            <li><strong>Live Arrangement:</strong> Klicke während dem Playback auf gespeicherte Pads, um musikalisch zwischen ihnen zu wechseln.</li>
+            <li><strong>Export WAV:</strong> Rendert deinen Loop offline als saubere Audiodatei.</li>
+            <li><strong>Live REC:</strong> Nimmt eine Performance auf dem Pad live auf und lädt sie direkt als WAV herunter.</li>
+            <li><strong>Set Import/Export:</strong> Speichert dein gesamtes Projekt als Datei ab.</li>
           </ul>
         </div>
+
       </div>
     </div>
 
     <div id="help-en" style="display: none;">
-      <h2>🕊️ Sound Drawing Sequencer</h2>
+      <h2>Sound Drawing Sequencer</h2>
       <div class="help-grid-expanded">
+        
         <div class="help-section">
-          <h3>🎨 1. Get Started: Draw your Sound</h3>
+          <h3>1. Get Started: Draw your Sound</h3>
           <ul>
-            <li><strong>Draw:</strong> Click and drag on the white canvas to draw notes.</li>
-            <li><strong>Pitch:</strong> Top = high notes, Bottom = low notes.</li>
+            <li><strong>Select Pattern:</strong> Click an empty pad in the <em>Pattern Bank</em> (bottom right, e.g., row 'A') to start your first loop.</li>
+            <li><strong>Draw:</strong> Click and drag on the white canvas to draw notes. Top = high pitch, Bottom = low pitch.</li>
             <li><strong>Tools:</strong> Choose between <em>Draw</em> and <em>Erase</em> on the left.</li>
-            <li><strong>Brush:</strong> Try different brushes (e.g. Particles or Chord) for great textures!</li>
+            <li><strong>Brush:</strong> Use different brushes (e.g., Particles or Chord) for complex textures.</li>
           </ul>
         </div>
+
         <div class="help-section">
-          <h3>🎛️ 2. The 4 Tracks</h3>
+          <h3>2. The 4 Tracks</h3>
           <ul>
-            <li><strong>Waveforms:</strong> Choose the core sound. <strong>∿</strong> (Bass), <strong>⊓</strong> (8-Bit), <strong>∧</strong> (Synth).</li>
+            <li><strong>Waveforms:</strong> Choose the core sound. <strong>∿</strong> (Smooth Bass/Lead), <strong>⊓</strong> (Hollow 8-Bit), <strong>∧</strong> (Sharp Synth).</li>
             <li><strong>Snap:</strong> Forces your drawn lines onto a strict rhythmic grid (Quantization).</li>
             <li><strong>Solo / Mute:</strong> Silence tracks or listen to them in isolation.</li>
             <li><strong>Volume:</strong> Adjust the level of each track separately.</li>
           </ul>
         </div>
+
         <div class="help-section">
-          <h3>🚀 3. Live Performance & FX</h3>
+          <h3>3. Live Performance & FX</h3>
           <ul>
-            <li><strong>Poke Me Pad:</strong> Select a <em>Target</em> track on the right and click the pad to trigger sounds live.</li>
+            <li><strong>Poke Me Pad:</strong> Select a <em>Target</em> track. Click the pad to trigger sounds live (X = Time, Y = Pitch).</li>
             <li><strong>Effects (FX):</strong> Click the colored squares in an FX module to route a track into it.</li>
-            <li><strong>X/Y Link:</strong> Hijacks the Poke Me pad to control the two FX knobs like a live mixer!</li>
+            <li><strong>X/Y Link:</strong> Hijacks the Poke Me pad to control the two FX knobs like a live mixer instead of playing notes.</li>
           </ul>
         </div>
+
         <div class="help-section">
-          <h3>⏱️ 4. Rhythm & Control</h3>
+          <h3>4. Rhythm & Sync</h3>
           <ul>
             <li><strong>Play/Stop:</strong> Start the loop (Shortcut: <em>Spacebar</em>).</li>
             <li><strong>Harmonize:</strong> Forces all your drawings into a clean musical scale (e.g., Minor).</li>
-            <li><strong>EXT SYNC:</strong> Connect the app to your DAW (e.g., Ableton) via virtual MIDI clock.</li>
+            <li><strong>EXT SYNC (DAW Setup):</strong> Use a virtual MIDI cable (Mac: <em>IAC Driver</em>, Win: <em>loopMIDI</em>). Enable Sync output for it in your DAW (e.g., Ableton). Select the port here and hit EXT SYNC.</li>
           </ul>
         </div>
+
         <div class="help-section" style="grid-column: 1 / -1;">
-          <h3>💾 5. Save, Export & Patterns</h3>
+          <h3>5. Save, Export & Actions</h3>
           <ul style="column-count: 2; column-gap: 40px;">
-            <li><strong>Pattern Bank:</strong> Save loops (Bank A/B/C). Click <strong>SAVE</strong>, then a pad.</li>
-            <li><strong>Export WAV:</strong> Download your finished loop as an audio file.</li>
-            <li><strong>Import/Export Set:</strong> Save your entire project and load it later.</li>
-            <li><strong>REC:</strong> Record a live performance on the pad and download it directly!</li>
+            <li><strong>Save Pattern:</strong> Click <strong>SAVE</strong> (pulses red), then click an empty pad to store your current loop.</li>
+            <li><strong>Live Arrangement:</strong> Click saved pads during playback to queue and switch patterns seamlessly.</li>
+            <li><strong>Export WAV:</strong> Renders your perfect loop offline as an audio file.</li>
+            <li><strong>Live REC:</strong> Records your performance on the pad and downloads it as a WAV file.</li>
+            <li><strong>Import/Export Set:</strong> Saves your entire session to disk.</li>
           </ul>
         </div>
+
       </div>
     </div>
 
