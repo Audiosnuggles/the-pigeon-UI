@@ -237,6 +237,10 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
 .toggle-sq { width: 16px; height: 16px; background: transparent; border: 1px solid var(--color-border-btn); border-radius: var(--radius-sm); flex-shrink: 0; transition: background 0.15s; }
 #loopCheckbox:checked + .toggle-ui, #harmonizeCheckbox:checked + .toggle-ui { background: var(--color-pink); }
 
+/* NEU: Flex-Container für die Button-Blöcke */
+.ctrl-action-blocks { display: flex; align-items: flex-start; gap: 32px; /* Der horizontale Abstand (Space) zwischen den Gruppen */ }
+.ctrl-block { display: flex; flex-direction: column; gap: 10px; /* Der vertikale Abstand zwischen Reihe 2 und 3 */ }
+
 .ctrl-btn-row { display: flex; align-items: center; gap: 8px; }
 .btn--ctrl { background: var(--color-bg-button); border: 1px solid var(--color-border-btn); border-radius: var(--radius-sm); height: 34px; padding: 0 16px; font-size: 11.5px; font-family: 'Arial', sans-serif; color: #292929; white-space: nowrap; transition: background .12s; }
 .btn--ctrl:hover { background: #e8e8e8; }
