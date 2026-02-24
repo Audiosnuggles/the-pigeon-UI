@@ -3,7 +3,7 @@ export let masterGain;
 export let analyser;
 export const fxNodes = { delay: {}, reverb: {}, vibrato: {}, filter: {}, stutter: {} };
 export const trackSends = [[], [], [], []];
-export const trackAnalysers = []; // NEU: Hier speichern wir die 4 Messgeräte für die LEDs
+export const trackAnalysers = []; // Für die Clipping LEDs
 
 export function initAudio(tracks, updateRoutingCallback) {
     if (audioCtx) return;
@@ -32,16 +32,23 @@ export function initAudio(tracks, updateRoutingCallback) {
     fxNodes.delay.feedback.connect(fxNodes.delay.node);
     fxNodes.delay.node.connect(masterGain);
 
-    // 2. REVERB
+    // 2. REVERB (Jetzt warm und weich)
     fxNodes.reverb.convolver = audioCtx.createConvolver();
     fxNodes.reverb.mix = audioCtx.createGain();
     fxNodes.reverb.input = audioCtx.createGain();
     
+    // NEU: Der Dampening-Filter für die Höhen
+    fxNodes.reverb.filter = audioCtx.createBiquadFilter();
+    fxNodes.reverb.filter.type = 'lowpass';
+    fxNodes.reverb.filter.frequency.value = 2500; // Alles über 2.5kHz wird sanft abgedämpft
+    
     fxNodes.reverb.mix.gain.value = 0.2;
     updateReverbDecay(0.5); 
     
+    // Neues Routing: Input -> Convolver -> Filter -> Mix -> Master
     fxNodes.reverb.input.connect(fxNodes.reverb.convolver);
-    fxNodes.reverb.convolver.connect(fxNodes.reverb.mix);
+    fxNodes.reverb.convolver.connect(fxNodes.reverb.filter);
+    fxNodes.reverb.filter.connect(fxNodes.reverb.mix);
     fxNodes.reverb.mix.connect(masterGain);
 
     // 3. VIBRATO
@@ -82,13 +89,18 @@ export function initAudio(tracks, updateRoutingCallback) {
     fxNodes.filter.node1.connect(fxNodes.filter.node2);
     fxNodes.filter.node2.connect(masterGain);
 
-    // 5. STUTTER GATE
+    // 5. STUTTER GATE (Knacks-frei durch abgerundete Kanten)
     fxNodes.stutter.input = audioCtx.createGain();
     fxNodes.stutter.gate = audioCtx.createGain();
     fxNodes.stutter.lfo = audioCtx.createOscillator();
     
     fxNodes.stutter.lfo.type = 'square';
     fxNodes.stutter.lfo.frequency.value = 8;
+
+    // NEU: Der "Slew Limiter" - Ein Filter, der den LFO abrundet
+    fxNodes.stutter.smoother = audioCtx.createBiquadFilter();
+    fxNodes.stutter.smoother.type = 'lowpass';
+    fxNodes.stutter.smoother.frequency.value = 40; // Sehr tiefe Frequenz rundet die Rechteck-Kanten ab
     
     const stutterAmp = audioCtx.createGain();
     stutterAmp.gain.value = 0.5;
@@ -97,7 +109,11 @@ export function initAudio(tracks, updateRoutingCallback) {
     stutterOffset.start();
 
     fxNodes.stutter.gate.gain.value = 0;
-    fxNodes.stutter.lfo.connect(stutterAmp);
+    
+    // Neues LFO-Routing: LFO -> Smoother -> Amp -> Gain Parameter
+    fxNodes.stutter.lfo.connect(fxNodes.stutter.smoother);
+    fxNodes.stutter.smoother.connect(stutterAmp);
+    
     stutterAmp.connect(fxNodes.stutter.gate.gain);
     stutterOffset.connect(fxNodes.stutter.gate.gain);
     fxNodes.stutter.lfo.start();
@@ -106,7 +122,7 @@ export function initAudio(tracks, updateRoutingCallback) {
     fxNodes.stutter.gate.connect(masterGain); 
 
     tracks.forEach((t, i) => {
-        // NEU: Analyser für diesen Track erstellen
+        // Analyser für diesen Track erstellen (für die LEDs)
         trackAnalysers[i] = audioCtx.createAnalyser();
         trackAnalysers[i].fftSize = 256;
 
@@ -126,7 +142,7 @@ export function initAudio(tracks, updateRoutingCallback) {
         trackSends[i].filter.gain.value = 0;
         trackSends[i].stutter.gain.value = 0;
 
-        // WICHTIG: Das Routing! Das Dry-Signal geht erst in den Analyser und von dort in den Master
+        // Routing: Das Dry-Signal geht erst in den Analyser und von dort in den Master
         trackSends[i].dry.connect(trackAnalysers[i]);
         trackAnalysers[i].connect(masterGain);
 
