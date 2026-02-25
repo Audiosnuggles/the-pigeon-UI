@@ -220,35 +220,19 @@ function applyAllFXFromUI() {
 }
 
 function loadInitialData() {
-    const saved = localStorage.getItem("pigeonBanks");
-    let loadedFromSave = false;
-
-    if (saved) { 
-        try { 
-            patternBanks = JSON.parse(saved); 
-            updatePadUI(patternBanks); 
-            
-            for (let bank of ['A', 'B', 'C']) {
-                for (let i = 0; i < 4; i++) {
-                    if (patternBanks[bank][i]) {
-                        loadPatternData(patternBanks[bank][i]);
-                        const padElem = document.querySelector(`.pad[data-bank="${bank}"][data-idx="${i}"]`);
-                        if (padElem) padElem.classList.add("active");
-                        loadedFromSave = true;
-                        break;
-                    }
-                }
-                if (loadedFromSave) break;
+    // Lädt IMMER frisch die default_set.json vom Server
+    fetch('default_set.json?t=' + Date.now())
+        .then(res => res.json())
+        .then(data => {
+            if (data.banks) { 
+                patternBanks = data.banks; 
+                updatePadUI(patternBanks); 
             }
-        } catch(e) {} 
-    }
-    
-    if (!loadedFromSave) {
-        fetch('default_set.json?t=' + Date.now()).then(res => res.json()).then(data => {
-            if (data.banks) { patternBanks = data.banks; updatePadUI(patternBanks); }
-            if (data.current) loadPatternData(data.current);
-        }).catch(() => console.log("Default-Set nicht gefunden."));
-    }
+            if (data.current) {
+                loadPatternData(data.current);
+            }
+        })
+        .catch(() => console.log("Default-Set nicht gefunden. Starte mit leerem Canvas."));
 }
 
 function loadPatternData(d) {
