@@ -1217,7 +1217,59 @@ function loop() {
     tracks.forEach(t => redrawTrack(t, x, brushSelect.value, chordIntervals, chordColors)); 
     const dataArray = new Uint8Array(analyser.frequencyBinCount); analyser.getByteFrequencyData(dataArray);
     let avg = dataArray.reduce((a, b) => a + b) / dataArray.length; let d = avg - lastAvg; lastAvg = avg;
-    pigeonImg.style.transform = `scale(${1 + Math.min(0.2, d / 100)}, ${1 - Math.min(0.5, d / 50)})`; 
+    
+    // Basis-Bewegung (Squash & Stretch zum Beat)
+    let scaleX = 1 + Math.min(0.2, d / 100);
+    let scaleY = 1 - Math.min(0.5, d / 50);
+    
+    // 1. PRÜFEN, OB GERADE EIN FRACTAL-SOUND ZU HÖREN IST
+    let isFractalPlaying = false;
+    
+    // Wird gerade live gezeichnet?
+    if (liveGainNode && brushSelect.value === "fractal") {
+        isFractalPlaying = true; 
+    }
+    
+    // Überquert der Playhead gerade einen gezeichneten Fractal-Strich?
+    if (isPlaying) {
+        const anySolo = tracks.some(t => t.solo);
+        tracks.forEach(track => {
+            if (track.mute || (anySolo && !track.solo)) return; // Stumme Spuren ignorieren
+            track.segments.forEach(seg => {
+                if (seg.brush === "fractal" && seg.points.length > 0) {
+                    const sorted = seg.points.slice().sort((a, b) => a.x - b.x);
+                    const startX = sorted[0].x;
+                    const endX = sorted[sorted.length - 1].x;
+                    
+                    // Befindet sich der Playhead (x) genau auf diesem Strich?
+                    // (+10 Pixel Toleranz für den Audio-Release/Ausklang)
+                    if (x >= startX && x <= endX + 10) {
+                        isFractalPlaying = true;
+                    }
+                }
+            });
+        });
+    }
+    
+    // 2. DER RGB GLITCH EFFEKT (nur wenn isFractalPlaying = true ist)
+    if (isFractalPlaying) {
+        // Taube zittert unkontrolliert
+        const jitterX = (Math.random() - 0.5) * 15;
+        const jitterY = (Math.random() - 0.5) * 15;
+        pigeonImg.style.transform = `scale(${scaleX}, ${scaleY}) translate(${jitterX}px, ${jitterY}px)`;
+        
+        // RGB-Split (Rot und Cyan driften auseinander) + wilder Farbwechsel
+        pigeonImg.style.filter = `
+            drop-shadow(${jitterX * 1.5}px ${jitterY * 1.5}px 0 rgba(255, 0, 0, 0.8)) 
+            drop-shadow(${-jitterX * 1.5}px ${-jitterY * 1.5}px 0 rgba(0, 255, 255, 0.8))
+            hue-rotate(${Math.random() * 360}deg)
+            contrast(150%)
+        `;
+    } else {
+        // Normaler Zustand ohne Fractal-Sound
+        pigeonImg.style.transform = `scale(${scaleX}, ${scaleY}) translate(0px, 0px)`;
+        pigeonImg.style.filter = 'none';
+    }
 }
 
 function setupTrackControls(t) {
