@@ -335,25 +335,26 @@ function startLiveSynth(track, y) {
     liveNodes = []; liveGainNode = audioCtx.createGain(); liveGainNode.gain.setValueAtTime(0, audioCtx.currentTime);
     liveGainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.01);
     
-    let freq = mapYToFrequency(y, 100); 
+    let currentY = y;
+    const brush = brushSelect.value;
+    
+    // CHAOS: Y-Koordinate direkt visuell anpassen
+    if (brush === "fractal" && track.curSeg && track.curSeg.points.length > 0) {
+        const fractalChaos = getKnobVal("FRACTAL", "CHAOS") || 0;
+        const p = track.curSeg.points[track.curSeg.points.length - 1];
+        currentY += (p.rY || 0) * 100 * fractalChaos;
+    }
+    
+    let freq = mapYToFrequency(currentY, 100); 
     if (harmonizeCheckbox.checked) freq = quantizeFrequency(freq, scaleSelect.value);
     
-    const brush = brushSelect.value; 
     const ivs = (brush === "chord") ? chordIntervals[chordSelect.value] : [0];
-    const fractalMorph = getKnobVal("FRACTAL", "MORPH") || 0;
 
     ivs.forEach(iv => {
-        const osc = audioCtx.createOscillator(); osc.type = track.wave;
+        const osc = audioCtx.createOscillator(); 
+        osc.type = track.wave;
         osc.frequency.setValueAtTime(freq * Math.pow(2, iv / 12), audioCtx.currentTime);
-        
-        if(brush === "fractal") { 
-            const sh = audioCtx.createWaveShaper(); 
-            sh.curve = getDistortionCurve(80 + (fractalMorph * 400)); 
-            activeWaveShapers.push(sh); 
-            osc.connect(sh).connect(liveGainNode); 
-        } else {
-            osc.connect(liveGainNode);
-        }
+        osc.connect(liveGainNode); // <-- Kein Verzerrer mehr, reiner Sound!
         osc.start(); liveNodes.push(osc);
     });
     
@@ -366,22 +367,21 @@ function startLiveSynth(track, y) {
 
 function updateLiveSynth(track, y) {
     if (!liveGainNode) return;
-    let freq = mapYToFrequency(y, 100); 
-    if (harmonizeCheckbox.checked) freq = quantizeFrequency(freq, scaleSelect.value);
-    liveNodes.forEach((n, i) => { const ivs = (brushSelect.value === "chord") ? chordIntervals[chordSelect.value] : [0]; n.frequency.setTargetAtTime(freq * Math.pow(2, (ivs[i] || 0) / 12), audioCtx.currentTime, 0.02); });
-}
+    
+    let currentY = y;
+    if (brushSelect.value === "fractal" && track.curSeg && track.curSeg.points.length > 0) {
+        const fractalChaos = getKnobVal("FRACTAL", "CHAOS") || 0;
+        const p = track.curSeg.points[track.curSeg.points.length - 1];
+        currentY += (p.rY || 0) * 100 * fractalChaos;
+    }
 
-function stopLiveSynth() {
-    if (!liveGainNode) return;
-    const gn = liveGainNode; 
-    const ns = liveNodes; 
-    gn.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
-    setTimeout(() => { 
-        ns.forEach(n => { try { n.stop(); } catch(e){} }); 
-        if (gn.out) gn.out.disconnect(); 
-        gn.disconnect(); 
-    }, 100);
-    liveNodes = []; liveGainNode = null;
+    let freq = mapYToFrequency(currentY, 100); 
+    if (harmonizeCheckbox.checked) freq = quantizeFrequency(freq, scaleSelect.value);
+    
+    liveNodes.forEach((n, i) => { 
+        const ivs = (brushSelect.value === "chord") ? chordIntervals[chordSelect.value] : [0]; 
+        n.frequency.setTargetAtTime(freq * Math.pow(2, (ivs[i] || 0) / 12), audioCtx.currentTime, 0.02); 
+    });
 }
 
 function triggerParticleGrain(track, y) { 
@@ -432,7 +432,6 @@ function scheduleTracks(start, targetCtx = audioCtx, targetDest = masterGain, of
 
             if (getMatrixStateByName("DELAY", track.index)) trkG.connect(offlineFX.delay);
             if (getMatrixStateByName("VIBRATO", track.index)) trkG.connect(offlineFX.vibrato);
-            // Nutze den Reverb Input für Offline Render
             if (getMatrixStateByName("REVERB", track.index) && offlineFX.reverbInput) trkG.connect(offlineFX.reverbInput); 
             if (hasFilter && offlineFX.filterInput) trkG.connect(offlineFX.filterInput);
             
@@ -444,7 +443,7 @@ function scheduleTracks(start, targetCtx = audioCtx, targetDest = masterGain, of
             }
         }
         
-        const fractalMorph = getKnobVal("FRACTAL", "MORPH") || 0;
+        const fractalChaos = getKnobVal("FRACTAL", "CHAOS") || 0;
 
         track.segments.forEach(seg => {
             const brush = seg.brush || "standard", sorted = seg.points.slice().sort((a, b) => a.x - b.x);
@@ -465,22 +464,44 @@ function scheduleTracks(start, targetCtx = audioCtx, targetDest = masterGain, of
                 });
             } else {
                 const ivs = (brush === "chord") ? chordIntervals[seg.chordType || "major"] : [0];
-                let sT = Math.max(0, start + (sorted[0].x / 750) * playbackDuration), eT = Math.max(0, start + (sorted[sorted.length-1].x / 750) * playbackDuration);
+                
                 ivs.forEach(iv => {
                     const osc = targetCtx.createOscillator(), g = targetCtx.createGain(); osc.type = track.wave;
-                    g.gain.setValueAtTime(0, sT); g.gain.linearRampToValueAtTime(0.3, sT + 0.02); g.gain.setValueAtTime(0.3, eT); g.gain.linearRampToValueAtTime(0, eT + 0.1);
-                    if (brush === "fractal") { 
-                        const sh = targetCtx.createWaveShaper(); 
-                        sh.curve = getDistortionCurve(80 + (fractalMorph * 400)); 
-                        if (targetCtx === audioCtx) activeWaveShapers.push(sh); 
-                        osc.connect(sh).connect(g); 
-                    } else {
-                        osc.connect(g);
-                    }
-                    g.connect(trkG); sorted.forEach(p => {
-                        const t = Math.max(0, start + (p.x / 750) * playbackDuration); let f = mapYToFrequency(p.y, 100); if (harmonizeCheckbox.checked) f = quantizeFrequency(f, scaleSelect.value);
-                        osc.frequency.linearRampToValueAtTime(f * Math.pow(2, iv/12), t);
+                    
+                    let tfPairs = [];
+                    sorted.forEach(p => {
+                        let cX = p.x, cY = p.y;
+                        if (brush === "fractal") {
+                            // Die optischen Abweichungen exakt in X (Rhythmus) und Y (Tonhöhe) umrechnen
+                            cX += (p.rX || 0) * 50 * fractalChaos;
+                            cY += (p.rY || 0) * 100 * fractalChaos;
+                        }
+                        const t = Math.max(0, start + (cX / 750) * playbackDuration); 
+                        let f = mapYToFrequency(cY, 100); 
+                        if (harmonizeCheckbox.checked) f = quantizeFrequency(f, scaleSelect.value);
+                        tfPairs.push({ t, f });
                     });
+                    
+                    // Verhindert WebAudio-Crashes bei Zeitverschiebungen
+                    tfPairs.sort((a, b) => a.t - b.t);
+                    if (tfPairs.length === 0) return;
+                    
+                    const sT = tfPairs[0].t;
+                    const eT = tfPairs[tfPairs.length - 1].t;
+
+                    g.gain.setValueAtTime(0, sT); 
+                    g.gain.linearRampToValueAtTime(0.3, sT + 0.02); 
+                    g.gain.setValueAtTime(0.3, eT); 
+                    g.gain.linearRampToValueAtTime(0, eT + 0.1);
+
+                    osc.connect(g); // <-- Rein, pur, ohne Distortion!
+                    g.connect(trkG); 
+                    
+                    tfPairs.forEach(pair => {
+                        try { osc.frequency.linearRampToValueAtTime(pair.f * Math.pow(2, iv/12), pair.t); } 
+                        catch(e) { osc.frequency.setTargetAtTime(pair.f * Math.pow(2, iv/12), pair.t, 0.01); }
+                    });
+                    
                     osc.onended = () => { const idx = activeNodes.indexOf(osc); if (idx > -1) activeNodes.splice(idx, 1); };
                     osc.start(sT); osc.stop(eT + 0.2); 
                     if (targetCtx === audioCtx) activeNodes.push(osc);
