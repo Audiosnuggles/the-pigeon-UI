@@ -220,16 +220,33 @@ function applyAllFXFromUI() {
 }
 
 function loadInitialData() {
-    // Lädt IMMER frisch die default_set.json vom Server
-    fetch('default_set.json?t=' + Date.now())
+    // Ohne "?t=...", damit der Browser die 1.2MB große Datei cachen darf und sofort lädt!
+    fetch('default_set.json')
         .then(res => res.json())
         .then(data => {
+            // 1. Bänke laden und die Punkte (filled) auf den Pads anzeigen
             if (data.banks) { 
                 patternBanks = data.banks; 
                 updatePadUI(patternBanks); 
             }
+            
+            // 2. Das aktuelle Bild auf dem Canvas zeichnen
             if (data.current) {
                 loadPatternData(data.current);
+            }
+
+            // 3. Das erste belegte Pad suchen und als "aktiv" (leuchtend) markieren
+            let foundActive = false;
+            for (let bank of ['A', 'B', 'C']) {
+                for (let i = 0; i < 4; i++) {
+                    if (patternBanks[bank] && patternBanks[bank][i]) {
+                        const padElem = document.querySelector(`.pad[data-bank="${bank}"][data-idx="${i}"]`);
+                        if (padElem) padElem.classList.add("active");
+                        foundActive = true;
+                        break;
+                    }
+                }
+                if (foundActive) break;
             }
         })
         .catch(() => console.log("Default-Set nicht gefunden. Starte mit leerem Canvas."));

@@ -104,30 +104,6 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
   margin: 0; 
 }
 
-.title-line { display: block; }
-
-.header__right {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.header__logo-icon {
-  width: 65px; 
-  height: auto;
-  margin-top: 6px; /* NEU: Schiebt das SVG-Logo ein paar Pixel nach unten */
-}
-
-#pigeon { 
-  width: 60px;
-  margin-top: 20px;
-  display: block;
-  vertical-align: bottom; 
-  opacity: 0.8; 
-  pointer-events: none; 
-  transform-origin: bottom center; 
-  transition: transform 0.05s ease-out; 
-}
 
 .title-line { display: block; }
 
@@ -144,7 +120,13 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
 }
 
 #pigeon { 
-  width: 60px; 
+  width: 75px;
+  
+  /* Zieht die Taube über das 8px Header-Padding exakt auf die Linie: */
+  margin-bottom: -30px; 
+  
+  display: block;
+  vertical-align: bottom; 
   opacity: 0.8; 
   pointer-events: none; 
   transform-origin: bottom center; 
@@ -439,15 +421,36 @@ button { cursor: pointer; font-family: 'Arial', sans-serif; }
 
 .pattern-grid { display: grid; grid-template-columns: 16px repeat(4, 33px); grid-template-rows: repeat(3, 33px); gap: 4px; align-items: center; }
 .pat-row-lbl { font-size: 14.5px; color: var(--color-dark-gray); text-align: right; padding-right: 2px; line-height: 1; }
-.pat-btn { width: 33px; height: 33px; border: 1px solid var(--color-border); border-radius: var(--radius-md); transition: filter .1s; }
+.pat-btn { 
+  width: 33px; 
+  height: 33px; 
+  border: 1px solid var(--color-border); 
+  border-radius: var(--radius-md); 
+  transition: filter .1s; 
+  position: relative; /* WICHTIG: Damit der Punkt genau in der Mitte zentriert werden kann */
+}
 .pat-btn:hover { filter: brightness(1.08); }
 
 .pad { background: #929191; }
 .pad.filled { background: #b8b8b8; }
+
+/* NEU: Der weiße Indikator-Punkt für gespeicherte Patterns */
+.pad.filled::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  pointer-events: none; /* Verhindert, dass der Punkt Klicks blockiert */
+}
+
 .pad.active { background: var(--color-pink); box-shadow: 0 0 0 2px #fff inset; }
 .pad.queued { background: var(--color-green); animation: fastPulse 0.3s infinite; }
-#saveModeBtn.active { background: var(--color-red); color: white; border-color: var(--color-red); animation: fastPulse 0.5s infinite; }
-#recButton.active .rec-dot { animation: fastPulse 0.5s infinite; }
 
 /* =========================================
    HELP OVERLAY STYLING

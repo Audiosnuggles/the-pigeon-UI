@@ -25,16 +25,32 @@ export function setupKnob(knob, onValueChange) {
 
 /**
  * Aktualisiert die "Filled"-Anzeige der Pattern-Pads.
+ * Prüft jetzt, ob auch wirklich Pinselstriche (Punkte) vorhanden sind.
  */
 export function updatePadUI(patternBanks) {
     document.querySelectorAll(".pad").forEach(pad => {
         const b = pad.dataset.bank;
         const i = parseInt(pad.dataset.idx);
-        pad.classList.toggle("filled", !!(patternBanks[b] && patternBanks[b][i]));
+        
+        let hasContent = false;
+        const pat = patternBanks[b] && patternBanks[b][i];
+        
+        if (pat) {
+            // Die Spuren-Daten holen (unterstützt das alte und neue JSON-Format)
+            const tracksData = pat.tracks || pat; 
+            
+            if (Array.isArray(tracksData)) {
+                // Prüfen, ob irgendeine der 4 Spuren ein Segment mit gezeichneten Punkten enthält
+                hasContent = tracksData.some(track => 
+                    track.segments && track.segments.some(seg => seg.points && seg.points.length > 0)
+                );
+            }
+        }
+        
+        pad.classList.toggle("filled", hasContent);
     });
 }
 
-/**
  * Setzt das FX-Rack visuell auf die Standardwerte zurück.
  */
 export function resetFXUI(updateRouting) {
