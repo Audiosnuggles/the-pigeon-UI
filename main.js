@@ -384,6 +384,25 @@ function updateLiveSynth(track, y) {
     });
 }
 
+function stopLiveSynth() {
+    if (!liveGainNode) return;
+    const gn = liveGainNode; 
+    const ns = liveNodes; 
+    
+    // Ton sanft ausfaden
+    gn.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+    
+    // Nach dem Ausfaden komplett abschalten
+    setTimeout(() => { 
+        ns.forEach(n => { try { n.stop(); n.disconnect(); } catch(e){} }); 
+        if (gn.out) gn.out.disconnect(); 
+        gn.disconnect(); 
+    }, 100);
+    
+    liveNodes = []; 
+    liveGainNode = null;
+}
+
 function triggerParticleGrain(track, y) { 
     const anySolo = tracks.some(t => t.solo);
     const isAudible = anySolo ? track.solo : !track.mute;

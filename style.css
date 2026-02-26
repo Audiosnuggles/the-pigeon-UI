@@ -553,4 +553,9 @@ body.eraser-mode, body.eraser-mode canvas {
   100% { filter: brightness(1); }
 }
 
-
+/* Import und Export Buttons exakt gleich breit machen */
+#importButton, #exportButton {
+  width: 96px;
+  text-align: center;
+  padding: 0; /* Überschreibt das Standard-Padding für perfekte Zentrierung */
+}
