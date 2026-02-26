@@ -548,3 +548,12 @@ body.eraser-mode #custom-eraser { display: block; }
 body.eraser-mode, body.eraser-mode canvas {
   cursor: none !important;
 }
+
+/* =========================================
+   ANIMATIONS
+   ========================================= */
+@keyframes fastPulse {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.4); }
+  100% { filter: brightness(1); }
+}

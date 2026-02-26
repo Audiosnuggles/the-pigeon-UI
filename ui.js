@@ -51,6 +51,7 @@ export function updatePadUI(patternBanks) {
     });
 }
 
+/**
  * Setzt das FX-Rack visuell auf die Standardwerte zurück.
  */
 export function resetFXUI(updateRouting) {

@@ -873,7 +873,7 @@ function setupMainControls() {
 }
 
 function setupPads() {
-    document.getElementById("saveModeBtn").addEventListener("click", (e) => { isSaveMode = !isSaveMode; e.target.classList.toggle("active", isSaveMode); });
+    document.getElementById("saveModeBtn").addEventListener("click", (e) => { isSaveMode = !isSaveMode; e.currentTarget.classList.toggle("active", isSaveMode); });
     document.querySelectorAll(".pad").forEach(pad => {
         pad.addEventListener("click", () => {
             const b = pad.dataset.bank, i = parseInt(pad.dataset.idx);
